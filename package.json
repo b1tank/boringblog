@@ -27,6 +27,7 @@
     "@tiptap/react": "^3.19.0",
     "@tiptap/starter-kit": "^3.19.0",
     "bcryptjs": "^3.0.3",
+    "dotenv": "^17.3.1",
     "iron-session": "^8.0.4",
     "next": "16.1.6",
     "pinyin": "^4.0.0",

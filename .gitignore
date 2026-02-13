@@ -53,3 +53,5 @@ infra/*.json
 .vscode/
 *.swp
 *.swo
+
+/src/generated/prisma
