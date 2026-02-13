@@ -1,0 +1,23 @@
+using './main.bicep'
+
+// Custom domain for the blog (must match your DNS registrar)
+param domainName = 'lezhiweng.com'
+
+// PostgreSQL administrator credentials
+param postgresAdminLogin = 'pgadmin'
+param postgresAdminPassword = '<REPLACE_WITH_STRONG_PASSWORD>'
+
+// Secret for encrypting iron-session cookies (generate with: openssl rand -base64 32)
+param sessionSecret = '<REPLACE_WITH_RANDOM_SECRET>'
+
+// Resend API key from https://resend.com/api-keys
+param resendApiKey = '<REPLACE_WITH_RESEND_API_KEY>'
+
+// Storage account name — must be globally unique, 3-24 lowercase alphanumeric
+param storageAccountName = 'boringblogimages'
+
+// Public URL of the deployed site
+param siteUrl = 'https://lezhiweng.com'
+
+// From address for transactional emails (must be verified in Resend)
+param resendFromEmail = 'noreply@lezhiweng.com'
