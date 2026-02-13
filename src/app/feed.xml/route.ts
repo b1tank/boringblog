@@ -1,6 +1,8 @@
 import { prisma } from "@/lib/db";
 import { extractExcerpt } from "@/lib/utils";
 
+export const dynamic = "force-dynamic";
+
 function escapeXml(str: string): string {
   return str
     .replace(/&/g, "&amp;")

@@ -1,6 +1,14 @@
 import { Resend } from "resend";
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+// Lazy initialization to avoid Resend throwing at module load time
+// when RESEND_API_KEY is not set (e.g., during next build)
+let _resend: Resend | null = null;
+function getResend(): Resend {
+  if (!_resend) {
+    _resend = new Resend(process.env.RESEND_API_KEY);
+  }
+  return _resend;
+}
 
 const fromEmail = process.env.RESEND_FROM_EMAIL || "noreply@example.com";
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
@@ -8,7 +16,7 @@ const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
 export async function sendPasswordResetEmail(email: string, token: string) {
   const resetLink = `${siteUrl}/reset-password?token=${token}`;
 
-  await resend.emails.send({
+  await getResend().emails.send({
     from: fromEmail,
     to: email,
     subject: "重置您的密码",
@@ -36,7 +44,7 @@ export async function sendInviteEmail(
 ) {
   const loginLink = `${siteUrl}/login`;
 
-  await resend.emails.send({
+  await getResend().emails.send({
     from: fromEmail,
     to: email,
     subject: "您已被邀请加入博客",

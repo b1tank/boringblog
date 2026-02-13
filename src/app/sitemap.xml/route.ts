@@ -1,5 +1,7 @@
 import { prisma } from "@/lib/db";
 
+export const dynamic = "force-dynamic";
+
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://lezhiweng.com";
 
 export async function GET() {
@@ -26,7 +28,7 @@ export async function GET() {
   </url>
 ${posts
   .map(
-    (post) => `  <url>
+    (post: { slug: string; updatedAt: Date }) => `  <url>
     <loc>${SITE_URL}/posts/${post.slug}</loc>
     <lastmod>${post.updatedAt.toISOString()}</lastmod>
     <changefreq>weekly</changefreq>
@@ -36,7 +38,7 @@ ${posts
   .join("\n")}
 ${tags
   .map(
-    (tag) => `  <url>
+    (tag: { slug: string }) => `  <url>
     <loc>${SITE_URL}/tags/${tag.slug}</loc>
     <changefreq>weekly</changefreq>
     <priority>0.5</priority>
@@ -45,7 +47,7 @@ ${tags
   .join("\n")}
 ${authors
   .map(
-    (author) => `  <url>
+    (author: { name: string }) => `  <url>
     <loc>${SITE_URL}/author/${encodeURIComponent(author.name)}</loc>
     <changefreq>weekly</changefreq>
     <priority>0.5</priority>

@@ -2,6 +2,8 @@ import { prisma } from "@/lib/db";
 import { PostCard } from "@/components/PostCard";
 import Link from "next/link";
 
+export const dynamic = "force-dynamic";
+
 const PAGE_SIZE = 20;
 
 export default async function Home({

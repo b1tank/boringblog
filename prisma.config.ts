@@ -9,6 +9,9 @@ export default defineConfig({
     path: "prisma/migrations",
   },
   datasource: {
-    url: process.env["DATABASE_URL"],
+    // During next build, DATABASE_URL may not be set.
+    // Provide a dummy URL so PrismaClient can be instantiated for type checking.
+    // Actual DB connections only happen at runtime.
+    url: process.env["DATABASE_URL"] || "postgresql://build:build@localhost:5432/build",
   },
 });

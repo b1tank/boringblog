@@ -3,6 +3,8 @@ import { notFound } from "next/navigation";
 import { prisma } from "@/lib/db";
 import { PostCard } from "@/components/PostCard";
 
+export const dynamic = "force-dynamic";
+
 interface Props {
   params: Promise<{ name: string }>;
 }

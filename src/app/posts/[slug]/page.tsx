@@ -10,6 +10,8 @@ import { TableOfContents } from "@/components/TableOfContents";
 import { TagBadge } from "@/components/TagBadge";
 import Link from "next/link";
 
+export const dynamic = "force-dynamic";
+
 interface Props {
   params: Promise<{ slug: string }>;
 }
