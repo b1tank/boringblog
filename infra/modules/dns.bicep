@@ -1,5 +1,5 @@
 @description('Custom domain name for the blog')
-param domainName string = 'lezhiweng.com'
+param domainName string
 
 @description('Public IP address of the App Service')
 param appServiceIp string

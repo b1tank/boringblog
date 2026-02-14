@@ -7,11 +7,11 @@ A dead-simple, self-hosted family blog. Invite-only authors write with a rich-te
 ```
 ┌────────────────────────────────────────────────┐
 │                  Readers                        │
-│         lezhiweng.com (HTTPS)                  │
+│         yourdomain.com (HTTPS)                 │
 └──────────────────┬─────────────────────────────┘
                    │
 ┌──────────────────▼─────────────────────────────┐
-│           Azure App Service (Node 20)          │
+│           Azure Container Apps (Node 20)        │
 │           Next.js 16 (App Router)              │
 │                                                │
 │  Public:  /, /posts/*, /tags/*, /author/*      │
@@ -79,7 +79,10 @@ Open [http://localhost:3000](http://localhost:3000). Login at [http://localhost:
 
 ### One-Time Infrastructure Setup
 
-1. Create resource group (already done): `boringblog-wus2-rg` in West US 2
+1. Create a resource group:
+   ```bash
+   az group create -n <your-rg-name> -l <region>
+   ```
 2. Copy and fill Bicep parameters:
    ```bash
    cp infra/main.bicepparam.example infra/main.bicepparam
@@ -88,12 +91,12 @@ Open [http://localhost:3000](http://localhost:3000). Login at [http://localhost:
 3. Deploy infrastructure:
    ```bash
    az deployment group create \
-     -g boringblog-wus2-rg \
+     -g <your-rg-name> \
      -f infra/main.bicep \
      -p infra/main.bicepparam
    ```
 4. Configure DNS: Update Namecheap nameservers to Azure DNS (see `plan.md` for details)
-5. Set GitHub Secrets: `AZURE_CREDENTIALS`, `AZURE_WEBAPP_PUBLISH_PROFILE`, `DATABASE_URL`
+5. Set GitHub Secrets: `AZURE_CREDENTIALS`, `AZURE_RESOURCE_GROUP`, `ACR_NAME`, `CONTAINER_APP_NAME`, `DATABASE_URL`
 
 ### Continuous Deployment
 

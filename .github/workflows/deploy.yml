@@ -14,24 +14,29 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: actions/setup-node@v4
+      - uses: azure/login@v2
         with:
-          node-version: 20
-          cache: 'npm'
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-      - run: npm ci
+      - name: Build and push to ACR
+        run: |
+          az acr login --name ${{ secrets.ACR_NAME }}
+          docker build -t ${{ secrets.ACR_NAME }}.azurecr.io/boringblog:${{ github.sha }} \
+                       -t ${{ secrets.ACR_NAME }}.azurecr.io/boringblog:latest .
+          docker push ${{ secrets.ACR_NAME }}.azurecr.io/boringblog:${{ github.sha }}
+          docker push ${{ secrets.ACR_NAME }}.azurecr.io/boringblog:latest
 
-      - run: npx prisma generate
-
-      - run: npm run build
+      - name: Deploy to Container App
+        run: |
+          az containerapp update \
+            --name ${{ secrets.CONTAINER_APP_NAME }} \
+            --resource-group ${{ secrets.AZURE_RESOURCE_GROUP }} \
+            --image ${{ secrets.ACR_NAME }}.azurecr.io/boringblog:${{ github.sha }}
 
       - name: Run Prisma migrations
-        run: npx prisma migrate deploy
+        run: |
+          npm ci
+          npx prisma generate
+          npx prisma migrate deploy
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
-
-      - uses: azure/webapps-deploy@v3
-        with:
-          app-name: boringblog-app
-          publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
-          package: .next/standalone

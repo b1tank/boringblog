@@ -26,7 +26,7 @@ jobs:
         if: inputs.action == 'what-if'
         run: |
           az deployment group what-if \
-            --resource-group boringblog-wus2-rg \
+            --resource-group ${{ secrets.AZURE_RESOURCE_GROUP }} \
             --template-file infra/main.bicep \
             --parameters infra/main.bicepparam
 
@@ -34,7 +34,7 @@ jobs:
         if: inputs.action == 'deploy'
         run: |
           az deployment group create \
-            --resource-group boringblog-wus2-rg \
+            --resource-group ${{ secrets.AZURE_RESOURCE_GROUP }} \
             --template-file infra/main.bicep \
             --parameters infra/main.bicepparam \
             --verbose
@@ -43,6 +43,6 @@ jobs:
         if: inputs.action == 'deploy'
         run: |
           az deployment group show \
-            --resource-group boringblog-wus2-rg \
+            --resource-group ${{ secrets.AZURE_RESOURCE_GROUP }} \
             --name main \
             --query properties.outputs

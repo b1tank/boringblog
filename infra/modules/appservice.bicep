@@ -10,7 +10,7 @@ param managedIdentityClientId string
 @description('Azure Storage account name')
 param storageAccountName string
 
-@description('Public site URL (e.g. https://lezhiweng.com)')
+@description('Public site URL (e.g. https://yourdomain.com)')
 param siteUrl string
 
 @description('ACS sender email address')

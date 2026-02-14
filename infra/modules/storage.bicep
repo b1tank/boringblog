@@ -4,7 +4,7 @@ param location string = resourceGroup().location
 @description('Globally unique name for the storage account (3-24 lowercase alphanumeric)')
 param storageAccountName string
 
-@description('Allowed origins for CORS (e.g. https://lezhiweng.com)')
+@description('Allowed origins for CORS (e.g. https://yourdomain.com)')
 param allowedOrigins array
 
 resource storageAccount 'Microsoft.Storage/storageAccounts@2023-05-01' = {

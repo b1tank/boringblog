@@ -55,7 +55,7 @@ infra/main.bicepparam.example     infra/main.bicepparam
 
 ## Auth Design
 
-> **Goal**: Dad opens `lezhiweng.com/login` (bookmarked, not linked in nav), types email + password, gets a session cookie, sees "写文章" button. Admin (you) can invite new authors via `/settings`. Authors can self-service reset passwords via email.
+> **Goal**: Dad opens `yourdomain.com/login` (bookmarked, not linked in nav), types email + password, gets a session cookie, sees "写文章" button. Admin (you) can invite new authors via `/settings`. Authors can self-service reset passwords via email.
 
 ### Approach: `iron-session` + bcrypt + Azure Communication Services
 
@@ -72,8 +72,8 @@ See Phase 2 below for full implementation details (login, forgot password, reset
 ### Azure Resources
 
 ```
-boringblog-wus2-rg (existing)
-├── boringblog-dns          Azure DNS Zone (lezhiweng.com)
+<your-resource-group> (existing)
+├── boringblog-dns          Azure DNS Zone (yourdomain.com)
 ├── boringblog-kv           Key Vault
 ├── boringblog-pg           PostgreSQL Flexible Server (Burstable B1ms)
 │   └── boringblog          Database
@@ -119,21 +119,21 @@ infra/
 | Key Vault References in App Settings | App Service reads secrets like `@Microsoft.KeyVault(SecretUri=...)`. No secrets in Bicep outputs. |
 | PostgreSQL Flexible (not Single) | Single Server is deprecated. Flexible is the current offering. |
 | Storage with public blob access | Blog images should be publicly readable. Container-level public access. |
-| CORS on Storage | Allow uploads from `lezhiweng.com` origin only. |
+| CORS on Storage | Allow uploads from `yourdomain.com` origin only. |
 | DNS Zone only (no registrar) | Namecheap remains the registrar. Azure DNS is authoritative nameserver. Manual NS delegation. |
 
 ### DNS Setup Flow
 
 ```
-1. Bicep deploys Azure DNS Zone for lezhiweng.com
+1. Bicep deploys Azure DNS Zone for yourdomain.com
    → Outputs 4 nameservers (e.g., ns1-03.azure-dns.com)
 
 2. MANUAL: Go to Namecheap → Domain → Custom DNS
    → Replace default NS with the 4 Azure NS records
 
 3. Bicep adds A record / CNAME for:
-   - lezhiweng.com → App Service IP (A record + TXT for verification)
-   - www.lezhiweng.com → boringblog-app.azurewebsites.net (CNAME)
+   - yourdomain.com → App Service IP (A record + TXT for verification)
+   - www.yourdomain.com → <your-app>.azurewebsites.net (CNAME)
 
 4. App Service custom domain + managed SSL certificate (free)
 ```
@@ -304,17 +304,17 @@ Written in modular Bicep, deployed via `az deployment group create` or GitHub Ac
 | `appservice.bicep` | Plan + App + settings + custom domain + SSL | ~100 |
 | `main.bicep` | Orchestrator, params, outputs | ~50 |
 
-**Success criteria**: `az deployment group create -g boringblog-wus2-rg -f infra/main.bicep -p infra/main.bicepparam` succeeds. App Service responds at `boringblog-app.azurewebsites.net`.
+**Success criteria**: `az deployment group create -g <your-resource-group> -f infra/main.bicep -p infra/main.bicepparam` succeeds. App Service responds at `<your-app>.azurewebsites.net`.
 
 ### 0.3 DNS Delegation (Manual)
 
 1. Deploy DNS Zone via Bicep → note the 4 Azure NS records
-2. Go to Namecheap → Domain List → lezhiweng.com → Custom DNS
+2. Go to Namecheap → Domain List → yourdomain.com → Custom DNS
 3. Replace Namecheap default NS with Azure NS records
 4. Wait for propagation (up to 48h, usually <1h)
-5. Verify: `dig lezhiweng.com NS` returns Azure nameservers
+5. Verify: `dig yourdomain.com NS` returns Azure nameservers
 
-**Success criteria**: `nslookup lezhiweng.com` resolves via Azure DNS.
+**Success criteria**: `nslookup yourdomain.com` resolves via Azure DNS.
 
 ### 0.4 GitHub Actions Scaffolding (~80 lines)
 
@@ -328,7 +328,7 @@ Two workflows:
 **`deploy.yml`** (on push to `main`):
 - `npm ci` → `npm run build` → `npx prisma migrate deploy`
 - Zip deploy to App Service via `azure/webapps-deploy` action
-- Smoke test: `curl https://lezhiweng.com` returns 200
+- Smoke test: `curl https://yourdomain.com` returns 200
 
 **Success criteria**: Both workflows run green. App deploys on push to `main`.
 
@@ -690,14 +690,14 @@ jobs:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
       - run: |
           az deployment group create \
-            -g boringblog-wus2-rg \
+            -g <your-resource-group> \
             -f infra/main.bicep \
             -p infra/main.bicepparam
 ```
 
 ### 5.4 Custom Domain + HTTPS (~20 lines in Bicep)
 
-- App Service custom domain binding for `lezhiweng.com` and `www.lezhiweng.com`
+- App Service custom domain binding for `yourdomain.com` and `www.yourdomain.com`
 - App Service Managed Certificate (free SSL)
 - HTTP → HTTPS redirect
 - `www` → apex redirect (or vice versa)
@@ -719,7 +719,7 @@ Used for: local development parity and potential future Azure Container Apps mig
 - Environment variables reference table
 - License
 
-**Success criteria**: Full CI/CD pipeline deploys on push. `lezhiweng.com` serves the blog with HTTPS. Lighthouse score > 90 on performance.
+**Success criteria**: Full CI/CD pipeline deploys on push. `yourdomain.com` serves the blog with HTTPS. Lighthouse score > 90 on performance.
 
 ---
 
@@ -753,7 +753,7 @@ Phase 2 (Auth)   Phase 3 (Reading)     ← PARALLEL
 |------|--------|------------|
 | PostgreSQL Flexible Server cold start latency | Slow first load after idle | Use `B1ms` (always-on burstable), not serverless tier |
 | Tiptap editor complexity for custom video embed | 1-2 day extra effort | Use existing `@tiptap/extension-youtube` + write minimal Bilibili extension |
-| Azure Blob Storage CORS issues | Image upload fails | Test CORS config early in Phase 0.2; allow `lezhiweng.com` + `localhost:3000` |
+| Azure Blob Storage CORS issues | Image upload fails | Test CORS config early in Phase 0.2; allow `yourdomain.com` + `localhost:3000` |
 | Chinese slug generation | Bad URLs for Chinese titles | Use `pinyin` npm package to transliterate; fallback to cuid |
 | Namecheap DNS propagation delay | Site unreachable for hours | Deploy with `*.azurewebsites.net` first; add custom domain after DNS propagates |
 | Dad locks himself out (forgot password) | Can't write | Self-service password reset via email. Backup: admin (you) can reset in DB directly. |

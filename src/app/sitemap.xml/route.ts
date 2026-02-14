@@ -2,7 +2,7 @@ import { prisma } from "@/lib/db";
 
 export const dynamic = "force-dynamic";
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://lezhiweng.com";
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://example.com";
 
 export async function GET() {
   const posts = await prisma.post.findMany({

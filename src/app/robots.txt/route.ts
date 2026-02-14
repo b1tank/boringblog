@@ -1,4 +1,4 @@
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://lezhiweng.com";
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://example.com";
 
 export async function GET() {
   const robotsTxt = `User-agent: *

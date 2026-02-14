@@ -3,7 +3,7 @@ targetScope = 'resourceGroup'
 // ─── Parameters ─────────────────────────────────────────────────────────────
 
 @description('Custom domain name for the blog')
-param domainName string = 'lezhiweng.com'
+param domainName string
 
 @description('PostgreSQL administrator login name')
 param postgresAdminLogin string
@@ -19,7 +19,7 @@ param sessionSecret string
 @description('Globally unique storage account name (3-24 lowercase alphanumeric)')
 param storageAccountName string
 
-@description('Public site URL (e.g. https://lezhiweng.com)')
+@description('Public site URL (e.g. https://yourdomain.com)')
 param siteUrl string
 
 @description('Azure region — defaults to resource group location')

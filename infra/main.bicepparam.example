@@ -1,7 +1,7 @@
 using './main.bicep'
 
 // Custom domain for the blog (must match your DNS registrar)
-param domainName = 'lezhiweng.com'
+param domainName = 'yourdomain.com'
 
 // PostgreSQL administrator credentials
 param postgresAdminLogin = 'pgadmin'
@@ -14,4 +14,4 @@ param sessionSecret = '<REPLACE_WITH_RANDOM_SECRET>'
 param storageAccountName = 'boringblogimages'
 
 // Public URL of the deployed site
-param siteUrl = 'https://lezhiweng.com'
+param siteUrl = 'https://yourdomain.com'
