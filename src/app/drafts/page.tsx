@@ -75,14 +75,8 @@ export default function DraftsPage() {
   return (
     <div className="bg-background">
       <div className="max-w-4xl mx-auto px-4 py-8">
-        <div className="flex items-center justify-between mb-6">
+        <div className="mb-6">
           <h1 className="text-2xl font-bold text-foreground">草稿箱</h1>
-          <Link
-            href="/write"
-            className="px-4 py-1.5 text-sm rounded bg-accent text-white hover:opacity-90 transition-colors"
-          >
-            写文章
-          </Link>
         </div>
 
         {drafts.length === 0 ? (
