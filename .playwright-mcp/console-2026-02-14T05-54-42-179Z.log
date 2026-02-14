@@ -1,2 +1,0 @@
-[     933ms] [WARNING] [tiptap warn]: Duplicate extension names found: ['link']. This can lead to issues. @ http://localhost:3001/_next/static/chunks/node_modules_next_dist_f3530cac._.js:2297
-[   62212ms] [WARNING] [tiptap warn]: Duplicate extension names found: ['link']. This can lead to issues. @ http://localhost:3001/_next/static/chunks/node_modules_next_dist_f3530cac._.js:2297
