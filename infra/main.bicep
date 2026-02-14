@@ -25,6 +25,9 @@ param siteUrl string
 @description('Azure region — defaults to resource group location')
 param location string = resourceGroup().location
 
+@description('Location for PostgreSQL Flexible Server (some regions have restrictions)')
+param postgresLocation string = 'westus3'
+
 // ─── Modules ────────────────────────────────────────────────────────────────
 
 module identity 'modules/identity.bicep' = {
@@ -37,7 +40,7 @@ module identity 'modules/identity.bicep' = {
 module postgres 'modules/postgres.bicep' = {
   name: 'postgres'
   params: {
-    location: location
+    location: postgresLocation
     adminLogin: postgresAdminLogin
     adminPassword: postgresAdminPassword
   }
@@ -58,7 +61,6 @@ module email 'modules/email.bicep' = {
   name: 'email'
   params: {
     location: location
-    emailDomainName: domainName
   }
 }
 
@@ -74,8 +76,8 @@ module keyVault 'modules/keyvault.bicep' = {
   }
 }
 
-module appService 'modules/appservice.bicep' = {
-  name: 'appservice'
+module containerApp 'modules/containerapp.bicep' = {
+  name: 'containerapp'
   params: {
     location: location
     managedIdentityId: identity.outputs.id
@@ -83,29 +85,33 @@ module appService 'modules/appservice.bicep' = {
     storageAccountName: storageAccountName
     siteUrl: siteUrl
     acsSenderAddress: 'DoNotReply@${email.outputs.azureManagedSenderDomain}'
+    databaseUrl: postgres.outputs.connectionString
+    sessionSecret: sessionSecret
+    acsConnectionString: email.outputs.connectionString
+    storageAccountKey: storage.outputs.accountKey
   }
-  dependsOn: [
-    keyVault // ensure Key Vault + secrets exist before App Service tries to reference them
-  ]
 }
 
 // ─── DNS ────────────────────────────────────────────────────────────────────
-// Uncomment after first deployment to get the App Service IP and verification ID:
+// Uncomment after first deployment to configure custom domain:
 //
 // module dns 'modules/dns.bicep' = {
 //   name: 'dns'
 //   params: {
 //     domainName: domainName
-//     appServiceIp: '<APP_SERVICE_IP>'
-//     appServiceHostname: appService.outputs.defaultHostname
+//     appServiceIp: '<CONTAINER_APP_IP>'
+//     appServiceHostname: containerApp.outputs.fqdn
 //     verificationId: '<CUSTOM_DOMAIN_VERIFICATION_ID>'
 //   }
 // }
 
 // ─── Outputs ────────────────────────────────────────────────────────────────
 
-@description('App Service default URL')
-output appUrl string = 'https://${appService.outputs.defaultHostname}'
+@description('Container App URL')
+output appUrl string = containerApp.outputs.url
+
+@description('ACR login server')
+output acrLoginServer string = containerApp.outputs.acrLoginServer
 
 @description('Blob storage endpoint for uploaded images')
 output storageEndpoint string = storage.outputs.blobEndpoint

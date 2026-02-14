@@ -9,7 +9,7 @@ param adminLogin string
 param adminPassword string
 
 resource postgresServer 'Microsoft.DBforPostgreSQL/flexibleServers@2024-08-01' = {
-  name: 'boringblog-pg'
+  name: 'boringblog-db'
   location: location
   sku: {
     name: 'Standard_B1ms'

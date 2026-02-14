@@ -21,8 +21,8 @@ resource appServicePlan 'Microsoft.Web/serverfarms@2023-12-01' = {
   location: location
   kind: 'linux'
   sku: {
-    name: 'B1'
-    tier: 'Basic'
+    name: 'F1'
+    tier: 'Free'
   }
   properties: {
     reserved: true // required for Linux
@@ -44,7 +44,7 @@ resource appService 'Microsoft.Web/sites@2023-12-01' = {
     keyVaultReferenceIdentity: managedIdentityId
     siteConfig: {
       linuxFxVersion: 'NODE|20-lts'
-      alwaysOn: true
+      alwaysOn: false // F1 tier doesn't support Always On
       minTlsVersion: '1.2'
       ftpsState: 'Disabled'
       appSettings: [
