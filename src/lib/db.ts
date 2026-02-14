@@ -1,4 +1,5 @@
 import { PrismaClient } from "@prisma/client";
+import { PrismaPg } from "@prisma/adapter-pg";
 
 const globalForPrisma = globalThis as unknown as {
   prisma: PrismaClient | undefined;
@@ -9,7 +10,11 @@ const globalForPrisma = globalThis as unknown as {
 // during next build (when DATABASE_URL may not be set).
 function getPrismaClient(): PrismaClient {
   if (!globalForPrisma.prisma) {
-    globalForPrisma.prisma = new PrismaClient();
+    const connectionString =
+      process.env.DATABASE_URL ||
+      "postgresql://build:build@localhost:5432/build";
+    const adapter = new PrismaPg({ connectionString: connectionString });
+    globalForPrisma.prisma = new PrismaClient({ adapter });
   }
   return globalForPrisma.prisma;
 }
