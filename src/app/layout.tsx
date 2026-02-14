@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Noto_Serif_SC } from "next/font/google";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { Header } from "@/components/Header";
+import { Footer } from "@/components/Footer";
 import "./globals.css";
 
 const notoSerifSC = Noto_Serif_SC({
@@ -47,12 +48,13 @@ export default function RootLayout({
           }}
         />
       </head>
-      <body className={`${notoSerifSC.variable} font-serif antialiased bg-background text-foreground min-h-screen`}>
+      <body className={`${notoSerifSC.variable} font-serif antialiased bg-background text-foreground min-h-screen flex flex-col`}>
         <ThemeProvider>
           <Header />
-          <main className="max-w-4xl mx-auto px-4 sm:px-6 py-8">
+          <main className="max-w-4xl mx-auto px-4 sm:px-6 py-8 flex-1">
             {children}
           </main>
+          <Footer />
         </ThemeProvider>
       </body>
     </html>
