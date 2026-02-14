@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="none">
+  <!-- Body: Roly-poly shape (round bottom) -->
+  <path d="M50 95C73 95 89 77 89 56C89 42 80 33 68 29C62 27 56 26 50 26C44 26 38 27 32 29C20 33 11 42 11 56C11 77 27 95 50 95Z" fill="#FDF6E3" stroke="#8B4513" stroke-width="3.5"/>
+  
+  <!-- Face details -->
+
+  <!-- Eyebrows (thick white semi-circles with outline) -->
+  <path d="M26 52 Q34 39 44 52 Z" fill="white" stroke="#8B4513" stroke-width="2.8" stroke-linejoin="round"/>
+  <path d="M56 52 Q66 39 74 52 Z" fill="white" stroke="#8B4513" stroke-width="2.8" stroke-linejoin="round"/>
+
+  <!-- Eyes (smiling curves) -->
+  <path d="M29 59 Q35 55 41 59" stroke="#8B4513" stroke-width="3" stroke-linecap="round" fill="none"/>
+  <path d="M59 59 Q65 55 71 59" stroke="#8B4513" stroke-width="3" stroke-linecap="round" fill="none"/>
+
+  <!-- Smile — raised a bit -->
+  <path d="M43 76 Q50 80 57 76" fill="none" stroke="#8B4513" stroke-width="2.8" stroke-linecap="round"/>
+  
+  <!-- Hat (Douli - Conical hat) -->
+  <!-- Wide triangle shape sitting on top of the head -->
+  <path d="M10 35L50 12L90 35" fill="#DEB887" stroke="#8B4513" stroke-width="3.5" stroke-linejoin="round"/>
+  <!-- Hat texture/lines -->
+  <path d="M50 12L30 35" stroke="#8B4513" stroke-width="1.5" opacity="0.5"/>
+  <path d="M50 12L70 35" stroke="#8B4513" stroke-width="1.5" opacity="0.5"/>
+  <path d="M50 12L50 35" stroke="#8B4513" stroke-width="1.5" opacity="0.5"/>
+
+</svg>

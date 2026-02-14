@@ -18,6 +18,11 @@ export const metadata: Metadata = {
     template: "%s | 乐之翁",
   },
   description: "个人博客",
+  icons: {
+    icon: "/favicon.svg",
+    shortcut: "/favicon.svg",
+    apple: "/favicon.svg",
+  },
   alternates: {
     types: {
       "application/rss+xml": "/feed.xml",
