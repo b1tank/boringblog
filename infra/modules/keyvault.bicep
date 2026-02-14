@@ -13,8 +13,8 @@ param databaseUrl string
 param sessionSecret string
 
 @secure()
-@description('Resend email API key')
-param resendApiKey string
+@description('ACS connection string for email sending')
+param acsConnectionString string
 
 @secure()
 @description('Azure Storage account key')
@@ -62,11 +62,11 @@ resource secretSessionSecret 'Microsoft.KeyVault/vaults/secrets@2023-07-01' = {
   }
 }
 
-resource secretResendApiKey 'Microsoft.KeyVault/vaults/secrets@2023-07-01' = {
+resource secretAcsConnectionString 'Microsoft.KeyVault/vaults/secrets@2023-07-01' = {
   parent: keyVault
-  name: 'resendApiKey'
+  name: 'acsConnectionString'
   properties: {
-    value: resendApiKey
+    value: acsConnectionString
   }
 }
 

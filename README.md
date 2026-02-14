@@ -62,8 +62,8 @@ Open [http://localhost:3000](http://localhost:3000). Login at [http://localhost:
 |----------|-------------|----------|
 | `DATABASE_URL` | PostgreSQL connection string | ✅ |
 | `SESSION_SECRET` | 32+ char random string for cookie encryption | ✅ |
-| `RESEND_API_KEY` | Resend API key for password reset emails | ✅ |
-| `RESEND_FROM_EMAIL` | Sender email for transactional emails | ✅ |
+| `ACS_CONNECTION_STRING` | ACS connection string for password reset emails | ✅ |
+| `ACS_SENDER_ADDRESS` | ACS sender email address | ✅ |
 | `NEXT_PUBLIC_SITE_URL` | Public URL of the blog | ✅ |
 | `AZURE_STORAGE_ACCOUNT_NAME` | Azure Blob Storage account name | For prod |
 | `AZURE_STORAGE_ACCOUNT_KEY` | Azure Blob Storage account key | For prod |
@@ -110,7 +110,7 @@ Push to `main` → GitHub Actions builds and deploys automatically.
 | ORM | Prisma 7 |
 | Auth | iron-session + bcrypt |
 | Editor | Tiptap v3 (WYSIWYG) |
-| Email | Resend |
+| Email | Azure Communication Services |
 | Storage | Azure Blob Storage |
 | Hosting | Azure App Service |
 | CI/CD | GitHub Actions |

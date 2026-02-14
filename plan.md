@@ -37,7 +37,7 @@ infra/main.bicepparam.example     infra/main.bicepparam
 | DB connection string | Azure Key Vault | App Service Key Vault Reference |
 | Blob Storage key | Azure Key Vault | App Service Key Vault Reference |
 | Session encryption key | Azure Key Vault | App Service Key Vault Reference |
-| Resend API key | Azure Key Vault | App Service Key Vault Reference |
+| ACS connection string | Azure Key Vault | App Service Key Vault Reference |
 | Azure subscription/tenant IDs | GitHub Secrets | CI/CD workflow only |
 | Azure service principal creds | GitHub Secrets | CI/CD workflow only |
 | Namecheap DNS (manual) | Namecheap dashboard | One-time manual step |
@@ -57,11 +57,11 @@ infra/main.bicepparam.example     infra/main.bicepparam
 
 > **Goal**: Dad opens `lezhiweng.com/login` (bookmarked, not linked in nav), types email + password, gets a session cookie, sees "写文章" button. Admin (you) can invite new authors via `/settings`. Authors can self-service reset passwords via email.
 
-### Approach: `iron-session` + bcrypt + Resend
+### Approach: `iron-session` + bcrypt + Azure Communication Services
 
 **Why not NextAuth.js?** NextAuth is built for multi-provider OAuth flows. For invite-only email/password auth, it adds unnecessary abstraction. `iron-session` is ~3KB, handles encrypted/signed cookies, and works perfectly with Next.js App Router.
 
-**Why Resend for email?** Simpler than Azure Communication Services. 1 npm package, 3 lines of code, free tier = 100 emails/day.
+**Why ACS for email?** Azure-native, lives in the same resource group. Can use Managed Identity (no extra API key). Free tier: 100 emails/day first month.
 
 See Phase 2 below for full implementation details (login, forgot password, reset, invite, middleware, header state).
 
@@ -202,7 +202,7 @@ boringblog/
 │   │       │   ├── me/
 │   │       │   │   └── route.ts      # GET: check session status
 │   │       │   ├── forgot-password/
-│   │       │   │   └── route.ts      # POST: send reset email via Resend
+│   │       │   │   └── route.ts      # POST: send reset email via Azure Communication Services
 │   │       │   └── reset-password/
 │   │       │       └── route.ts      # POST: validate token, update password
 │   │       ├── users/
@@ -226,7 +226,7 @@ boringblog/
 │   ├── lib/
 │   │   ├── auth.ts                   # iron-session config + helpers
 │   │   ├── db.ts                     # Prisma client singleton
-│   │   ├── email.ts                  # Resend email helpers (reset, invite)
+│   │   ├── email.ts                  # ACS email helpers (reset, invite)
 │   │   ├── storage.ts               # Azure Blob upload/delete helpers
 │   │   └── utils.ts                  # Slug generation, reading time, etc.
 │   └── styles/
@@ -254,7 +254,7 @@ boringblog/
 npx create-next-app@latest . --typescript --tailwind --eslint --app --src-dir
 ```
 
-- Add dependencies: `prisma`, `@prisma/client`, `iron-session`, `bcryptjs`, `resend`, `sharp`, `pinyin`, `@tiptap/*`, `@azure/storage-blob`
+- Add dependencies: `prisma`, `@prisma/client`, `iron-session`, `bcryptjs`, ``@azure/communication-email`, `sharp`, `pinyin`, `@tiptap/*`, `@azure/storage-blob`
 - Configure `next.config.ts` for image domains (blob storage)
 - Set up `docker-compose.yml` for local PostgreSQL
 - Create `.env.example` with all required vars and Chinese comments
@@ -267,9 +267,9 @@ DATABASE_URL="postgresql://user:password@localhost:5432/boringblog"
 # 会话加密 / Session encryption (32+ characters)
 SESSION_SECRET="change-me-to-a-random-32-char-string"
 
-# 邮件服务 / Email (Resend)
-RESEND_API_KEY="re_xxxxxxxxxxxx"
-RESEND_FROM_EMAIL="noreply@lezhiweng.com"
+# 邮件服务 / Email (Azure Communication Services)
+ACS_CONNECTION_STRING="endpoint=https://boringblog-acs.communication.azure.com/;accesskey=change-me"
+ACS_SENDER_ADDRESS="DoNotReply@xxxxxxxx.azurecomm.net"
 
 # Azure Blob Storage
 AZURE_STORAGE_ACCOUNT_NAME="boringblogst"
@@ -437,7 +437,7 @@ const sessionOptions = {
 - `POST /api/auth/login`: look up user by email, bcrypt.compare, create session with `{ userId, role }`
 - `POST /api/auth/logout`: destroy session
 - `GET /api/auth/me`: return `{ isLoggedIn, userId, name, role }`
-- `POST /api/auth/forgot-password`: generate reset token, store in DB, send email via Resend
+- `POST /api/auth/forgot-password`: generate reset token, store in DB, send email via Azure Communication Services
 - `POST /api/auth/reset-password`: validate token + expiry, update passwordHash, clear token
 
 ### 2.3 Login Page (~60 lines)

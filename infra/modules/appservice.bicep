@@ -13,8 +13,8 @@ param storageAccountName string
 @description('Public site URL (e.g. https://lezhiweng.com)')
 param siteUrl string
 
-@description('From email address for Resend (e.g. noreply@lezhiweng.com)')
-param resendFromEmail string
+@description('ACS sender email address')
+param acsSenderAddress string
 
 resource appServicePlan 'Microsoft.Web/serverfarms@2023-12-01' = {
   name: 'boringblog-plan'
@@ -57,8 +57,8 @@ resource appService 'Microsoft.Web/sites@2023-12-01' = {
           value: '@Microsoft.KeyVault(VaultName=boringblog-kv;SecretName=sessionSecret)'
         }
         {
-          name: 'RESEND_API_KEY'
-          value: '@Microsoft.KeyVault(VaultName=boringblog-kv;SecretName=resendApiKey)'
+          name: 'ACS_CONNECTION_STRING'
+          value: '@Microsoft.KeyVault(VaultName=boringblog-kv;SecretName=acsConnectionString)'
         }
         {
           name: 'AZURE_STORAGE_ACCOUNT_KEY'
@@ -77,8 +77,8 @@ resource appService 'Microsoft.Web/sites@2023-12-01' = {
           value: siteUrl
         }
         {
-          name: 'RESEND_FROM_EMAIL'
-          value: resendFromEmail
+          name: 'ACS_SENDER_ADDRESS'
+          value: acsSenderAddress
         }
       ]
     }

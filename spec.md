@@ -60,7 +60,7 @@
 | Login page on frontend — hidden, not linked in nav (`/login`) | ✅ |
 | Session-based auth with secure HTTP-only cookies (iron-session) | ✅ |
 | "写文章" button visible only when logged in | ✅ |
-| Forgot password → email reset link (via Resend) | ✅ |
+| Forgot password → email reset link (via Azure Communication Services) | ✅ |
 | Two roles: admin (manage all + invite users) / author (manage own posts) | ✅ |
 | Invite-only: admin adds authors via `/settings` page | ✅ |
 | Author manages own posts; admin can manage all posts | ✅ |

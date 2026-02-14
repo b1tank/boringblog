@@ -16,18 +16,11 @@ param postgresAdminPassword string
 @description('Secret used to encrypt iron-session cookies')
 param sessionSecret string
 
-@secure()
-@description('API key for Resend email service')
-param resendApiKey string
-
 @description('Globally unique storage account name (3-24 lowercase alphanumeric)')
 param storageAccountName string
 
 @description('Public site URL (e.g. https://lezhiweng.com)')
 param siteUrl string
-
-@description('From address for transactional emails (e.g. noreply@lezhiweng.com)')
-param resendFromEmail string
 
 @description('Azure region — defaults to resource group location')
 param location string = resourceGroup().location
@@ -61,6 +54,14 @@ module storage 'modules/storage.bicep' = {
   }
 }
 
+module email 'modules/email.bicep' = {
+  name: 'email'
+  params: {
+    location: location
+    emailDomainName: domainName
+  }
+}
+
 module keyVault 'modules/keyvault.bicep' = {
   name: 'keyvault'
   params: {
@@ -68,7 +69,7 @@ module keyVault 'modules/keyvault.bicep' = {
     managedIdentityPrincipalId: identity.outputs.principalId
     databaseUrl: postgres.outputs.connectionString
     sessionSecret: sessionSecret
-    resendApiKey: resendApiKey
+    acsConnectionString: email.outputs.connectionString
     storageAccountKey: storage.outputs.accountKey
   }
 }
@@ -81,7 +82,7 @@ module appService 'modules/appservice.bicep' = {
     managedIdentityClientId: identity.outputs.clientId
     storageAccountName: storageAccountName
     siteUrl: siteUrl
-    resendFromEmail: resendFromEmail
+    acsSenderAddress: 'DoNotReply@${email.outputs.azureManagedSenderDomain}'
   }
   dependsOn: [
     keyVault // ensure Key Vault + secrets exist before App Service tries to reference them
@@ -108,6 +109,9 @@ output appUrl string = 'https://${appService.outputs.defaultHostname}'
 
 @description('Blob storage endpoint for uploaded images')
 output storageEndpoint string = storage.outputs.blobEndpoint
+
+@description('ACS sender domain (use with DoNotReply@ prefix)')
+output acsSenderDomain string = email.outputs.azureManagedSenderDomain
 
 @description('PostgreSQL server FQDN')
 output postgresFqdn string = postgres.outputs.fqdn
