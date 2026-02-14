@@ -41,10 +41,6 @@ export function Header() {
 
         {/* Desktop nav */}
         <nav className="hidden sm:flex items-center gap-4 text-sm">
-          <Link href="/feed.xml" className="text-muted hover:text-foreground transition-colors">
-            RSS
-          </Link>
-
           {user && (
             <>
               <Link href="/write" className="text-muted hover:text-foreground transition-colors">
@@ -122,9 +118,6 @@ export function Header() {
       {/* Mobile menu */}
       {menuOpen && (
         <nav className="sm:hidden border-t border-border bg-card px-4 py-3 space-y-2 text-sm">
-          <Link href="/feed.xml" className="block text-muted hover:text-foreground" onClick={() => setMenuOpen(false)}>
-            RSS
-          </Link>
           {user && (
             <>
               <Link href="/write" className="block text-muted hover:text-foreground" onClick={() => setMenuOpen(false)}>
