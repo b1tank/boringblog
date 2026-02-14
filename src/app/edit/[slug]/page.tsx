@@ -39,7 +39,7 @@ export default function EditPage({
   const [pinned, setPinned] = useState(false);
   const [saving, setSaving] = useState(false);
   const [user, setUser] = useState<UserInfo | null>(null);
-  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   const [lastSaved, setLastSaved] = useState<Date | null>(null);
   const autoSaveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const contentRef = useRef<object | null>(null);
@@ -168,7 +168,7 @@ export default function EditPage({
         <div className="flex-1 min-w-0 p-4">
           <div className="flex items-center justify-between mb-4">
             <h1 className="text-lg font-semibold text-foreground">编辑文章</h1>
-            <div className="flex items-center gap-2">
+            <div className="flex flex-wrap gap-2">
               {lastSaved && (
                 <span className="text-xs text-muted">
                   上次保存 {lastSaved.toLocaleTimeString("zh-CN")}

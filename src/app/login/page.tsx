@@ -41,8 +41,8 @@ export default function LoginPage() {
   return (
     <div className="flex items-center justify-center px-4 -mt-8" style={{ minHeight: 'calc(100vh - 10rem)' }}>
       <div className="w-full max-w-sm">
-        <div className="bg-white rounded-2xl shadow-sm border border-zinc-200 p-8">
-          <h1 className="text-2xl font-bold text-zinc-900 text-center mb-8">
+        <div className="bg-card rounded-2xl shadow-sm border border-border p-8">
+          <h1 className="text-2xl font-bold text-foreground text-center mb-8">
             登录
           </h1>
 
@@ -50,7 +50,7 @@ export default function LoginPage() {
             <div>
               <label
                 htmlFor="email"
-                className="block text-sm font-medium text-zinc-700 mb-1.5"
+              className="block text-sm font-medium text-muted mb-1.5"
               >
                 邮箱
               </label>
@@ -61,7 +61,7 @@ export default function LoginPage() {
                 onChange={(e) => setEmail(e.target.value)}
                 required
                 autoComplete="email"
-                className="w-full px-3.5 py-2.5 border border-zinc-300 rounded-lg text-zinc-900 placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-zinc-900 focus:border-transparent transition-shadow"
+                className="w-full px-3.5 py-2.5 border border-border rounded-lg text-foreground placeholder-muted focus:outline-none focus:ring-2 focus:ring-foreground focus:border-transparent transition-shadow"
                 placeholder="your@email.com"
               />
             </div>
@@ -69,7 +69,7 @@ export default function LoginPage() {
             <div>
               <label
                 htmlFor="password"
-                className="block text-sm font-medium text-zinc-700 mb-1.5"
+              className="block text-sm font-medium text-muted mb-1.5"
               >
                 密码
               </label>
@@ -80,7 +80,7 @@ export default function LoginPage() {
                 onChange={(e) => setPassword(e.target.value)}
                 required
                 autoComplete="current-password"
-                className="w-full px-3.5 py-2.5 border border-zinc-300 rounded-lg text-zinc-900 placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-zinc-900 focus:border-transparent transition-shadow"
+                className="w-full px-3.5 py-2.5 border border-border rounded-lg text-foreground placeholder-muted focus:outline-none focus:ring-2 focus:ring-foreground focus:border-transparent transition-shadow"
                 placeholder="••••••••"
               />
             </div>
@@ -94,7 +94,7 @@ export default function LoginPage() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-2.5 px-4 bg-zinc-900 text-white rounded-lg font-medium hover:bg-zinc-800 focus:outline-none focus:ring-2 focus:ring-zinc-900 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              className="w-full py-2.5 px-4 bg-foreground text-white rounded-lg font-medium hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-foreground focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             >
               {loading ? "登录中…" : "登录"}
             </button>
@@ -103,7 +103,7 @@ export default function LoginPage() {
           <div className="mt-6 text-center">
             <Link
               href="/forgot-password"
-              className="text-sm text-zinc-500 hover:text-zinc-900 transition-colors"
+              className="text-sm text-muted hover:text-foreground transition-colors"
             >
               忘记密码？
             </Link>

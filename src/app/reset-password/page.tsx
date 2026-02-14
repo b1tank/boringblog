@@ -61,7 +61,7 @@ function ResetPasswordForm() {
         </p>
         <Link
           href="/forgot-password"
-          className="inline-block text-sm text-zinc-500 hover:text-zinc-900 transition-colors"
+          className="inline-block text-sm text-muted hover:text-foreground transition-colors"
         >
           重新发送重置链接
         </Link>
@@ -74,7 +74,7 @@ function ResetPasswordForm() {
       <div>
         <label
           htmlFor="password"
-          className="block text-sm font-medium text-zinc-700 mb-1.5"
+          className="block text-sm font-medium text-muted mb-1.5"
         >
           新密码
         </label>
@@ -86,7 +86,7 @@ function ResetPasswordForm() {
           required
           minLength={8}
           autoComplete="new-password"
-          className="w-full px-3.5 py-2.5 border border-zinc-300 rounded-lg text-zinc-900 placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-zinc-900 focus:border-transparent transition-shadow"
+          className="w-full px-3.5 py-2.5 border border-border rounded-lg text-foreground placeholder-muted focus:outline-none focus:ring-2 focus:ring-foreground focus:border-transparent transition-shadow"
           placeholder="至少 8 个字符"
         />
       </div>
@@ -94,7 +94,7 @@ function ResetPasswordForm() {
       <div>
         <label
           htmlFor="confirmPassword"
-          className="block text-sm font-medium text-zinc-700 mb-1.5"
+          className="block text-sm font-medium text-muted mb-1.5"
         >
           确认密码
         </label>
@@ -106,7 +106,7 @@ function ResetPasswordForm() {
           required
           minLength={8}
           autoComplete="new-password"
-          className="w-full px-3.5 py-2.5 border border-zinc-300 rounded-lg text-zinc-900 placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-zinc-900 focus:border-transparent transition-shadow"
+          className="w-full px-3.5 py-2.5 border border-border rounded-lg text-foreground placeholder-muted focus:outline-none focus:ring-2 focus:ring-foreground focus:border-transparent transition-shadow"
           placeholder="再次输入新密码"
         />
       </div>
@@ -120,7 +120,7 @@ function ResetPasswordForm() {
       <button
         type="submit"
         disabled={loading}
-        className="w-full py-2.5 px-4 bg-zinc-900 text-white rounded-lg font-medium hover:bg-zinc-800 focus:outline-none focus:ring-2 focus:ring-zinc-900 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+        className="w-full py-2.5 px-4 bg-foreground text-white rounded-lg font-medium hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-foreground focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
       >
         {loading ? "重置中…" : "重置密码"}
       </button>
@@ -128,7 +128,7 @@ function ResetPasswordForm() {
       <div className="text-center">
         <Link
           href="/login"
-          className="text-sm text-zinc-500 hover:text-zinc-900 transition-colors"
+          className="text-sm text-muted hover:text-foreground transition-colors"
         >
           返回登录
         </Link>
@@ -139,15 +139,15 @@ function ResetPasswordForm() {
 
 export default function ResetPasswordPage() {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-zinc-50 px-4">
+    <div className="flex items-center justify-center px-4 -mt-8" style={{ minHeight: 'calc(100vh - 10rem)' }}>
       <div className="w-full max-w-sm">
-        <div className="bg-white rounded-2xl shadow-sm border border-zinc-200 p-8">
-          <h1 className="text-2xl font-bold text-zinc-900 text-center mb-8">
+        <div className="bg-card rounded-2xl shadow-sm border border-border p-8">
+          <h1 className="text-2xl font-bold text-foreground text-center mb-8">
             重置密码
           </h1>
           <Suspense
             fallback={
-              <div className="text-center text-sm text-zinc-500">加载中…</div>
+              <div className="text-center text-sm text-muted">加载中…</div>
             }
           >
             <ResetPasswordForm />

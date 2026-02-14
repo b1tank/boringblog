@@ -52,7 +52,7 @@ export default async function Home({
           {page > 1 && (
             <Link
               href={`/?page=${page - 1}`}
-              className="text-accent hover:underline"
+              className="text-accent hover:underline inline-flex items-center min-h-[44px] px-2"
             >
               ← 上一页
             </Link>
@@ -61,7 +61,7 @@ export default async function Home({
           {hasMore && (
             <Link
               href={`/?page=${page + 1}`}
-              className="text-accent hover:underline"
+              className="text-accent hover:underline inline-flex items-center min-h-[44px] px-2"
             >
               加载更多 →
             </Link>

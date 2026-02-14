@@ -87,33 +87,32 @@ export default function SettingsPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-zinc-50">
-        <p className="text-zinc-500">加载中…</p>
+      <div className="flex items-center justify-center py-20">
+        <p className="text-muted">加载中…</p>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-zinc-50">
-      <div className="max-w-4xl mx-auto px-4 py-12">
-        <h1 className="text-3xl font-bold text-zinc-900 mb-8">家人管理</h1>
+    <>
+        <h1 className="text-3xl font-bold text-foreground mb-8">家人管理</h1>
 
         {/* Users Table */}
-        <div className="bg-white rounded-2xl shadow-sm border border-zinc-200 overflow-hidden mb-8">
+        <div className="bg-card rounded-2xl shadow-sm border border-border overflow-hidden mb-8">
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead>
-                <tr className="border-b border-zinc-200 bg-zinc-50">
-                  <th className="text-left px-6 py-3 text-sm font-medium text-zinc-500">
+                <tr className="border-b border-border bg-code-bg">
+                  <th className="text-left px-3 sm:px-6 py-3 text-sm font-medium text-muted">
                     姓名
                   </th>
-                  <th className="text-left px-6 py-3 text-sm font-medium text-zinc-500">
+                  <th className="text-left px-3 sm:px-6 py-3 text-sm font-medium text-muted hidden sm:table-cell">
                     邮箱
                   </th>
-                  <th className="text-left px-6 py-3 text-sm font-medium text-zinc-500">
+                  <th className="text-left px-3 sm:px-6 py-3 text-sm font-medium text-muted">
                     角色
                   </th>
-                  <th className="text-left px-6 py-3 text-sm font-medium text-zinc-500">
+                  <th className="text-left px-3 sm:px-6 py-3 text-sm font-medium text-muted">
                     加入时间
                   </th>
                 </tr>
@@ -122,15 +121,15 @@ export default function SettingsPage() {
                 {users.map((user) => (
                   <tr
                     key={user.id}
-                    className="border-b border-zinc-100 last:border-0"
+                    className="border-b border-border last:border-0"
                   >
-                    <td className="px-6 py-4 text-sm text-zinc-900">
+                    <td className="px-3 sm:px-6 py-4 text-sm text-foreground">
                       {user.name}
                     </td>
-                    <td className="px-6 py-4 text-sm text-zinc-600">
+                    <td className="px-3 sm:px-6 py-4 text-sm text-muted hidden sm:table-cell">
                       {user.email}
                     </td>
-                    <td className="px-6 py-4">
+                    <td className="px-3 sm:px-6 py-4">
                       <span
                         className={`inline-block text-xs font-medium px-2.5 py-1 rounded-full ${
                           user.role === "ADMIN"
@@ -141,7 +140,7 @@ export default function SettingsPage() {
                         {user.role === "ADMIN" ? "管理员" : "作者"}
                       </span>
                     </td>
-                    <td className="px-6 py-4 text-sm text-zinc-500">
+                    <td className="px-3 sm:px-6 py-4 text-sm text-muted">
                       {new Date(user.createdAt).toLocaleDateString("zh-CN")}
                     </td>
                   </tr>
@@ -150,7 +149,7 @@ export default function SettingsPage() {
                   <tr>
                     <td
                       colSpan={4}
-                      className="px-6 py-8 text-center text-sm text-zinc-400"
+                      className="px-3 sm:px-6 py-8 text-center text-sm text-muted"
                     >
                       暂无用户
                     </td>
@@ -162,8 +161,8 @@ export default function SettingsPage() {
         </div>
 
         {/* Invite Form */}
-        <div className="bg-white rounded-2xl shadow-sm border border-zinc-200 p-6">
-          <h2 className="text-lg font-semibold text-zinc-900 mb-4">
+        <div className="bg-card rounded-2xl shadow-sm border border-border p-6">
+          <h2 className="text-lg font-semibold text-foreground mb-4">
             邀请新作者
           </h2>
 
@@ -172,7 +171,7 @@ export default function SettingsPage() {
               <div>
                 <label
                   htmlFor="inviteName"
-                  className="block text-sm font-medium text-zinc-700 mb-1.5"
+                  className="block text-sm font-medium text-muted mb-1.5"
                 >
                   姓名
                 </label>
@@ -182,14 +181,14 @@ export default function SettingsPage() {
                   value={inviteName}
                   onChange={(e) => setInviteName(e.target.value)}
                   required
-                  className="w-full px-3.5 py-2.5 border border-zinc-300 rounded-lg text-zinc-900 placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-zinc-900 focus:border-transparent transition-shadow"
+                  className="w-full px-3.5 py-2.5 border border-border rounded-lg text-foreground placeholder-muted focus:outline-none focus:ring-2 focus:ring-foreground focus:border-transparent transition-shadow"
                   placeholder="作者姓名"
                 />
               </div>
               <div>
                 <label
                   htmlFor="inviteEmail"
-                  className="block text-sm font-medium text-zinc-700 mb-1.5"
+                  className="block text-sm font-medium text-muted mb-1.5"
                 >
                   邮箱
                 </label>
@@ -199,7 +198,7 @@ export default function SettingsPage() {
                   value={inviteEmail}
                   onChange={(e) => setInviteEmail(e.target.value)}
                   required
-                  className="w-full px-3.5 py-2.5 border border-zinc-300 rounded-lg text-zinc-900 placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-zinc-900 focus:border-transparent transition-shadow"
+                  className="w-full px-3.5 py-2.5 border border-border rounded-lg text-foreground placeholder-muted focus:outline-none focus:ring-2 focus:ring-foreground focus:border-transparent transition-shadow"
                   placeholder="author@email.com"
                 />
               </div>
@@ -220,13 +219,12 @@ export default function SettingsPage() {
             <button
               type="submit"
               disabled={inviteLoading}
-              className="py-2.5 px-6 bg-zinc-900 text-white rounded-lg font-medium hover:bg-zinc-800 focus:outline-none focus:ring-2 focus:ring-zinc-900 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              className="py-2.5 px-6 bg-foreground text-white rounded-lg font-medium hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-foreground focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             >
               {inviteLoading ? "发送中…" : "发送邀请"}
             </button>
           </form>
         </div>
-      </div>
-    </div>
+    </>
   );
 }

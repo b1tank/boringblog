@@ -10,7 +10,7 @@ export function Footer() {
         <div className="flex items-center gap-3">
           <Link
             href="/login"
-            className="hover:text-foreground transition-colors"
+            className="hover:text-foreground transition-colors py-2 px-2"
           >
             管理
           </Link>

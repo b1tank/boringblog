@@ -73,7 +73,7 @@ export default function DraftsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="bg-background">
       <div className="max-w-4xl mx-auto px-4 py-8">
         <div className="flex items-center justify-between mb-6">
           <h1 className="text-2xl font-bold text-foreground">草稿箱</h1>
@@ -101,7 +101,7 @@ export default function DraftsPage() {
                 <tr className="bg-code-bg text-sm text-muted">
                   <th className="text-left px-4 py-3 font-medium">标题</th>
                   {user?.role === "ADMIN" && (
-                    <th className="text-left px-4 py-3 font-medium">作者</th>
+                    <th className="text-left px-4 py-3 font-medium hidden sm:table-cell">作者</th>
                   )}
                   <th className="text-left px-4 py-3 font-medium hidden sm:table-cell">
                     字数
@@ -127,7 +127,7 @@ export default function DraftsPage() {
                       </Link>
                     </td>
                     {user?.role === "ADMIN" && (
-                      <td className="px-4 py-3 text-sm text-muted">
+                      <td className="px-4 py-3 text-sm text-muted hidden sm:table-cell">
                         {draft.author.name}
                       </td>
                     )}
@@ -147,7 +147,7 @@ export default function DraftsPage() {
                       <div className="flex items-center justify-end gap-2">
                         <Link
                           href={`/edit/${draft.slug}`}
-                          className="text-sm text-accent hover:underline"
+                          className="text-sm text-accent hover:underline py-2 px-2"
                         >
                           编辑
                         </Link>
@@ -156,7 +156,7 @@ export default function DraftsPage() {
                             handleDelete(draft.slug, draft.title)
                           }
                           disabled={deleting === draft.slug}
-                          className="text-sm text-red-500 hover:underline disabled:opacity-50 cursor-pointer"
+                          className="text-sm text-red-500 hover:underline disabled:opacity-50 cursor-pointer py-2 px-2"
                         >
                           {deleting === draft.slug ? "删除中..." : "删除"}
                         </button>

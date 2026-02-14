@@ -37,13 +37,13 @@ export default function ForgotPasswordPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-zinc-50 px-4">
+    <div className="flex items-center justify-center px-4 -mt-8" style={{ minHeight: 'calc(100vh - 10rem)' }}>
       <div className="w-full max-w-sm">
-        <div className="bg-white rounded-2xl shadow-sm border border-zinc-200 p-8">
-          <h1 className="text-2xl font-bold text-zinc-900 text-center mb-2">
+        <div className="bg-card rounded-2xl shadow-sm border border-border p-8">
+          <h1 className="text-2xl font-bold text-foreground text-center mb-2">
             忘记密码
           </h1>
-          <p className="text-sm text-zinc-500 text-center mb-8">
+          <p className="text-sm text-muted text-center mb-8">
             输入您的邮箱，我们将发送重置链接
           </p>
 
@@ -54,7 +54,7 @@ export default function ForgotPasswordPage() {
               </div>
               <Link
                 href="/login"
-                className="inline-block text-sm text-zinc-500 hover:text-zinc-900 transition-colors"
+                className="inline-block text-sm text-muted hover:text-foreground transition-colors"
               >
                 返回登录
               </Link>
@@ -64,7 +64,7 @@ export default function ForgotPasswordPage() {
               <div>
                 <label
                   htmlFor="email"
-                  className="block text-sm font-medium text-zinc-700 mb-1.5"
+                  className="block text-sm font-medium text-muted mb-1.5"
                 >
                   邮箱
                 </label>
@@ -75,7 +75,7 @@ export default function ForgotPasswordPage() {
                   onChange={(e) => setEmail(e.target.value)}
                   required
                   autoComplete="email"
-                  className="w-full px-3.5 py-2.5 border border-zinc-300 rounded-lg text-zinc-900 placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-zinc-900 focus:border-transparent transition-shadow"
+                  className="w-full px-3.5 py-2.5 border border-border rounded-lg text-foreground placeholder-muted focus:outline-none focus:ring-2 focus:ring-foreground focus:border-transparent transition-shadow"
                   placeholder="your@email.com"
                 />
               </div>
@@ -89,7 +89,7 @@ export default function ForgotPasswordPage() {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full py-2.5 px-4 bg-zinc-900 text-white rounded-lg font-medium hover:bg-zinc-800 focus:outline-none focus:ring-2 focus:ring-zinc-900 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                className="w-full py-2.5 px-4 bg-foreground text-white rounded-lg font-medium hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-foreground focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               >
                 {loading ? "发送中…" : "发送重置链接"}
               </button>
@@ -97,7 +97,7 @@ export default function ForgotPasswordPage() {
               <div className="text-center">
                 <Link
                   href="/login"
-                  className="text-sm text-zinc-500 hover:text-zinc-900 transition-colors"
+                  className="text-sm text-muted hover:text-foreground transition-colors"
                 >
                   返回登录
                 </Link>

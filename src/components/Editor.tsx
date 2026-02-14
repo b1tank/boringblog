@@ -287,7 +287,7 @@ export default function Editor({ content, onChange }: EditorProps) {
               onChange={(e) => setLinkUrl(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && setLink()}
               placeholder="输入链接..."
-              className="text-sm px-2 py-0.5 bg-background border border-border rounded w-48 outline-none"
+              className="text-sm px-2 py-0.5 bg-background border border-border rounded w-full max-w-[192px] outline-none"
               autoFocus
             />
             <button
@@ -352,7 +352,7 @@ function ToolbarBtn({
       onClick={onClick}
       disabled={disabled}
       title={title}
-      className={`px-2 py-1 rounded text-sm font-medium transition-colors ${
+      className={`px-2.5 py-2 sm:px-2 sm:py-1 rounded text-sm font-medium transition-colors ${
         active
           ? "bg-accent text-white"
           : "text-foreground hover:bg-tag-bg"

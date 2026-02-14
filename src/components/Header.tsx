@@ -67,7 +67,7 @@ export function Header() {
           {/* Theme toggle */}
           <button
             onClick={toggleTheme}
-            className="p-1.5 rounded-md hover:bg-tag-bg transition-colors cursor-pointer"
+            className="p-2.5 rounded-md hover:bg-tag-bg transition-colors cursor-pointer"
             aria-label="切换主题"
           >
             {theme === "dark" ? (
@@ -86,7 +86,7 @@ export function Header() {
         <div className="flex sm:hidden items-center gap-2">
           <button
             onClick={toggleTheme}
-            className="p-1.5 rounded-md hover:bg-tag-bg transition-colors cursor-pointer"
+            className="p-2.5 rounded-md hover:bg-tag-bg transition-colors cursor-pointer"
             aria-label="切换主题"
           >
             {theme === "dark" ? (
@@ -101,7 +101,7 @@ export function Header() {
           </button>
           <button
             onClick={() => setMenuOpen(!menuOpen)}
-            className="p-1.5 rounded-md hover:bg-tag-bg transition-colors cursor-pointer"
+            className="p-2.5 rounded-md hover:bg-tag-bg transition-colors cursor-pointer"
             aria-label="菜单"
           >
             <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
@@ -120,20 +120,20 @@ export function Header() {
         <nav className="sm:hidden border-t border-border bg-card px-4 py-3 space-y-2 text-sm">
           {user && (
             <>
-              <Link href="/write" className="block text-muted hover:text-foreground" onClick={() => setMenuOpen(false)}>
+              <Link href="/write" className="block text-muted hover:text-foreground py-3" onClick={() => setMenuOpen(false)}>
                 写文章
               </Link>
-              <Link href="/drafts" className="block text-muted hover:text-foreground" onClick={() => setMenuOpen(false)}>
+              <Link href="/drafts" className="block text-muted hover:text-foreground py-3" onClick={() => setMenuOpen(false)}>
                 我的草稿
               </Link>
               {user.role === "ADMIN" && (
-                <Link href="/settings" className="block text-muted hover:text-foreground" onClick={() => setMenuOpen(false)}>
+                <Link href="/settings" className="block text-muted hover:text-foreground py-3" onClick={() => setMenuOpen(false)}>
                   设置
                 </Link>
               )}
               <div className="flex items-center justify-between pt-1 border-t border-border">
                 <span className="text-muted">{user.name}</span>
-                <button onClick={handleLogout} className="text-muted hover:text-foreground cursor-pointer">
+                <button onClick={handleLogout} className="text-muted hover:text-foreground cursor-pointer py-3">
                   退出
                 </button>
               </div>
