@@ -1,4 +1,5 @@
 services:
+  # PostgreSQL — always runs (needed for both dev and docker-run modes)
   db:
     image: postgres:16-alpine
     restart: unless-stopped
@@ -10,6 +11,32 @@ services:
       - "5432:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U boringblog"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # Blog app — only runs with: docker compose --profile app up
+  # For normal dev, use "npm run dev" instead.
+  app:
+    profiles: ["app"]
+    build: .
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      DATABASE_URL: "postgresql://boringblog:boringblog@db:5432/boringblog"
+      SESSION_SECRET: "docker-local-dev-secret-change-in-prod!!"
+      ACS_CONNECTION_STRING: ""
+      ACS_SENDER_ADDRESS: ""
+      AZURE_STORAGE_ACCOUNT_NAME: ""
+      AZURE_STORAGE_ACCOUNT_KEY: ""
+      AZURE_STORAGE_CONTAINER_NAME: "images"
+      NEXT_PUBLIC_SITE_URL: "http://localhost:3000"
+    depends_on:
+      db:
+        condition: service_healthy
 
 volumes:
   pgdata:
