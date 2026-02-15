@@ -316,25 +316,25 @@ export default function Editor({ content, onChange }: EditorProps) {
           H
         </FloatingBtn>
         {showLinkInput ? (
-          <span className="flex items-center gap-1">
+          <span className="flex items-center gap-2 whitespace-nowrap">
             <input
               type="url"
               value={linkUrl}
               onChange={(e) => setLinkUrl(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && setLink()}
               placeholder="输入链接..."
-              className="text-sm px-2 py-0.5 bg-background border border-border rounded w-full max-w-[192px] outline-none"
+              className="text-sm px-2 py-0.5 bg-background border border-border rounded w-56 outline-none"
               autoFocus
             />
             <button
               onClick={setLink}
-              className="text-xs text-accent hover:underline"
+              className="inline-flex items-center text-xs text-accent hover:underline whitespace-nowrap"
             >
               确定
             </button>
             <button
               onClick={() => { setShowLinkInput(false); setLinkUrl(""); }}
-              className="text-xs text-muted hover:underline"
+              className="inline-flex items-center text-xs text-muted hover:underline whitespace-nowrap"
             >
               取消
             </button>
