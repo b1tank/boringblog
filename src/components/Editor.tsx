@@ -43,6 +43,53 @@ function isLikelyEmbeddableVideoUrl(parsedUrl: URL): boolean {
   return /(watch|video|embed|player|shorts|clip|live|reel)\b/.test(path);
 }
 
+function parseStartSeconds(raw: string | null): number | null {
+  if (!raw) return null;
+  if (/^\d+$/.test(raw)) return Number(raw);
+  const match = raw.match(/^(?:(\d+)h)?(?:(\d+)m)?(?:(\d+)s)?$/i);
+  if (!match) return null;
+  const hours = Number(match[1] || 0);
+  const minutes = Number(match[2] || 0);
+  const seconds = Number(match[3] || 0);
+  const total = hours * 3600 + minutes * 60 + seconds;
+  return total > 0 ? total : null;
+}
+
+function toEmbeddableVideoUrl(parsedUrl: URL): string {
+  const host = parsedUrl.hostname.replace(/^www\./, "").toLowerCase();
+  const path = parsedUrl.pathname;
+
+  if (host === "youtube.com" || host === "m.youtube.com" || host === "youtu.be") {
+    let videoId = "";
+
+    if (host === "youtu.be") {
+      videoId = path.split("/").filter(Boolean)[0] || "";
+    } else if (path.startsWith("/watch")) {
+      videoId = parsedUrl.searchParams.get("v") || "";
+    } else if (path.startsWith("/shorts/") || path.startsWith("/live/") || path.startsWith("/embed/")) {
+      videoId = path.split("/").filter(Boolean)[1] || "";
+    }
+
+    if (videoId) {
+      const embed = new URL(`https://www.youtube-nocookie.com/embed/${videoId}`);
+      const start = parseStartSeconds(parsedUrl.searchParams.get("t") || parsedUrl.searchParams.get("start"));
+      if (start !== null) {
+        embed.searchParams.set("start", String(start));
+      }
+      return embed.toString();
+    }
+  }
+
+  if (host === "vimeo.com") {
+    const id = path.split("/").filter(Boolean)[0];
+    if (id && /^\d+$/.test(id)) {
+      return `https://player.vimeo.com/video/${id}`;
+    }
+  }
+
+  return parsedUrl.toString();
+}
+
 export default function Editor({ content, onChange }: EditorProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [linkUrl, setLinkUrl] = useState("");
@@ -131,7 +178,7 @@ export default function Editor({ content, onChange }: EditorProps) {
     editor
       .chain()
       .focus()
-      .setVideoEmbed({ src: parsedUrl.toString(), direct: isDirectVideo })
+      .setVideoEmbed({ src: isDirectVideo ? parsedUrl.toString() : toEmbeddableVideoUrl(parsedUrl), direct: isDirectVideo })
       .run();
   }, [editor]);
 
