@@ -56,3 +56,5 @@ infra/*.json
 
 /src/generated/prisma
 .playwright-mcp/
+playwright-report/
+test-results/

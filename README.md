@@ -55,6 +55,27 @@ Login: go to `/login` → `admin@example.com` / `admin123`
 
 > **Note:** Email (password reset) and Azure Blob Storage are disabled in local dev. Images save to `public/uploads/` as a fallback.
 
+### End-to-End Tests (Playwright)
+
+```bash
+# Make sure DB is up and seeded first
+docker compose up -d
+npx prisma migrate dev --name init
+npx prisma db seed
+
+# Install browser binaries once
+npx playwright install
+
+# Run critical authoring flows
+npm run test:e2e
+```
+
+Optional env overrides (defaults target seeded admin):
+
+- `E2E_ADMIN_EMAIL` (default: `admin@example.com`)
+- `E2E_ADMIN_PASSWORD` (default: `admin123`)
+- `PLAYWRIGHT_BASE_URL` (default: `http://127.0.0.1:3000`)
+
 ### Option B: Docker Run (full app in containers)
 
 ```bash
