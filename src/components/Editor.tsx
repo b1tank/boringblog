@@ -135,6 +135,34 @@ export default function Editor({ content, onChange }: EditorProps) {
       .run();
   }, [editor]);
 
+  const handleInsertTable = useCallback(() => {
+    if (!editor) return;
+
+    const input = prompt("输入表格尺寸，格式：行x列（例如 4x5）", "3x3");
+    if (!input) return;
+
+    const normalized = input.trim().toLowerCase();
+    const match = normalized.match(/^(\d+)\s*[x×,，]\s*(\d+)$/);
+    if (!match) {
+      alert("格式错误，请使用例如 3x3 或 3,3");
+      return;
+    }
+
+    const rows = Number(match[1]);
+    const cols = Number(match[2]);
+
+    if (!Number.isInteger(rows) || !Number.isInteger(cols) || rows < 1 || cols < 1 || rows > 20 || cols > 20) {
+      alert("行列数需在 1 到 20 之间");
+      return;
+    }
+
+    editor
+      .chain()
+      .focus()
+      .insertTable({ rows, cols, withHeaderRow: true })
+      .run();
+  }, [editor]);
+
   const setLink = useCallback(() => {
     if (!editor) return;
     if (linkUrl) {
@@ -223,13 +251,7 @@ export default function Editor({ content, onChange }: EditorProps) {
         </ToolbarBtn>
         <ToolbarBtn
           active={false}
-          onClick={() =>
-            editor
-              .chain()
-              .focus()
-              .insertTable({ rows: 3, cols: 3, withHeaderRow: true })
-              .run()
-          }
+          onClick={handleInsertTable}
           title="插入表格"
         >
           ⊞
@@ -270,13 +292,7 @@ export default function Editor({ content, onChange }: EditorProps) {
           <VideoIcon />
         </FloatingBtn>
         <FloatingBtn
-          onClick={() =>
-            editor
-              .chain()
-              .focus()
-              .insertTable({ rows: 3, cols: 3, withHeaderRow: true })
-              .run()
-          }
+          onClick={handleInsertTable}
           title="表格"
         >
           ⊞
