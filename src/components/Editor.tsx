@@ -216,10 +216,10 @@ export default function Editor({ content, onChange }: EditorProps) {
           {"</>"}
         </ToolbarBtn>
         <ToolbarBtn active={false} onClick={handleImageClick} title="插入图片">
-          🖼
+          <ImageIcon />
         </ToolbarBtn>
         <ToolbarBtn active={false} onClick={handleVideoEmbed} title="插入视频">
-          ▶
+          <VideoIcon />
         </ToolbarBtn>
         <ToolbarBtn
           active={false}
@@ -264,10 +264,10 @@ export default function Editor({ content, onChange }: EditorProps) {
           H
         </FloatingBtn>
         <FloatingBtn onClick={handleImageClick} title="图片">
-          🖼
+          <ImageIcon />
         </FloatingBtn>
         <FloatingBtn onClick={handleVideoEmbed} title="视频">
-          ▶
+          <VideoIcon />
         </FloatingBtn>
         <FloatingBtn
           onClick={() =>
@@ -423,5 +423,42 @@ function FloatingBtn({
     >
       {children}
     </button>
+  );
+}
+
+function ImageIcon() {
+  return (
+    <svg
+      aria-hidden="true"
+      viewBox="0 0 24 24"
+      className="h-4 w-4"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <rect x="3" y="4" width="18" height="16" rx="2" />
+      <circle cx="9" cy="10" r="1.5" />
+      <path d="m21 16-4.8-4.8a1.5 1.5 0 0 0-2.1 0L7 18.2" />
+    </svg>
+  );
+}
+
+function VideoIcon() {
+  return (
+    <svg
+      aria-hidden="true"
+      viewBox="0 0 24 24"
+      className="h-4 w-4"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <rect x="3" y="5" width="18" height="14" rx="2" />
+      <path d="m10 9 5 3-5 3V9Z" fill="currentColor" stroke="none" />
+    </svg>
   );
 }
