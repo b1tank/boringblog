@@ -17,7 +17,6 @@ export default function WritePage() {
   const [tags, setTags] = useState<string[]>([]);
   const [tagInput, setTagInput] = useState("");
   const [coverImage, setCoverImage] = useState("");
-  const [slug, setSlug] = useState("");
   const [published, setPublished] = useState(false);
   const [pinned, setPinned] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -27,6 +26,8 @@ export default function WritePage() {
   const [lastSaved, setLastSaved] = useState<Date | null>(null);
   const autoSaveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const contentRef = useRef<object | null>(null);
+  const titleInputRef = useRef<HTMLInputElement>(null);
+  const coverFileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     contentRef.current = content;
@@ -42,8 +43,15 @@ export default function WritePage() {
 
   const save = useCallback(
     async (pub: boolean) => {
-      if (!title.trim()) return alert("请输入标题");
+      if (!title.trim()) {
+        titleInputRef.current?.focus();
+        return alert("请输入标题");
+      }
       if (!contentRef.current) return alert("请输入内容");
+      if (pub && tags.length === 0) {
+        const shouldContinue = confirm("当前未添加标签，发布后不利于分类和检索。仍要继续发布吗？");
+        if (!shouldContinue) return;
+      }
       setSaving(true);
       try {
         const body = {
@@ -51,7 +59,6 @@ export default function WritePage() {
           content: contentRef.current,
           tags,
           coverImage: coverImage || undefined,
-          slug: slug || undefined,
           published: pub,
           pinned,
         };
@@ -66,6 +73,7 @@ export default function WritePage() {
           const data = await res.json();
           if (!res.ok) throw new Error(data.error);
           setSavedSlug(data.slug);
+          setPublished(data.published);
           setLastSaved(new Date());
           if (data.slug !== savedSlug) {
             router.replace(`/edit/${data.slug}`);
@@ -80,7 +88,7 @@ export default function WritePage() {
           const data = await res.json();
           if (!res.ok) throw new Error(data.error);
           setSavedSlug(data.slug);
-          setSlug(data.slug);
+          setPublished(data.published);
           setLastSaved(new Date());
           router.replace(`/edit/${data.slug}`);
         }
@@ -90,7 +98,7 @@ export default function WritePage() {
         setSaving(false);
       }
     },
-    [title, tags, coverImage, slug, pinned, savedSlug, router]
+    [title, tags, coverImage, pinned, savedSlug, router]
   );
 
   // Auto-save every 30s
@@ -103,7 +111,7 @@ export default function WritePage() {
     return () => {
       if (autoSaveTimer.current) clearTimeout(autoSaveTimer.current);
     };
-  }, [title, content, tags, coverImage, slug, pinned, published, save]);
+  }, [title, content, tags, coverImage, pinned, published, save]);
 
   const handleTagKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if ((e.key === "Enter" || e.key === ",") && tagInput.trim()) {
@@ -158,12 +166,32 @@ export default function WritePage() {
               <button
                 onClick={() => setSidebarOpen(!sidebarOpen)}
                 className="lg:hidden px-2 py-1.5 text-sm rounded border border-border cursor-pointer"
-                title="设置"
+                title="更多设置"
               >
                 ⚙
               </button>
             </div>
           </div>
+
+          <div className="mb-4 p-3 border border-border rounded-lg bg-card space-y-2">
+            <div className="flex items-center justify-between">
+              <label className="text-sm font-medium text-foreground" htmlFor="post-title">
+                标题 <span className="text-red-500">*</span>
+              </label>
+              <span className="text-xs px-2 py-0.5 rounded bg-tag-bg text-tag-text">必填</span>
+            </div>
+            <input
+              id="post-title"
+              ref={titleInputRef}
+              type="text"
+              required
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              placeholder="请输入文章标题（必填）"
+              className="w-full px-3 py-2 text-lg font-semibold bg-background border border-border rounded outline-none focus:border-accent"
+            />
+          </div>
+
           <Editor content={content} onChange={setContent} />
         </div>
 
@@ -173,20 +201,6 @@ export default function WritePage() {
             sidebarOpen ? "block" : "hidden"
           } lg:block w-full lg:w-80 border-t lg:border-t-0 lg:border-l border-border p-4 space-y-5`}
         >
-          {/* Title */}
-          <div>
-            <label className="block text-sm font-medium text-muted mb-1">
-              标题
-            </label>
-            <input
-              type="text"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              placeholder="文章标题"
-              className="w-full px-3 py-2 text-lg font-semibold bg-background border border-border rounded outline-none focus:border-accent"
-            />
-          </div>
-
           {/* Tags */}
           <div>
             <label className="block text-sm font-medium text-muted mb-1">
@@ -239,43 +253,49 @@ export default function WritePage() {
               </div>
             )}
             <input
+              ref={coverFileInputRef}
               type="file"
               accept="image/*"
               onChange={handleCoverUpload}
-              className="text-sm text-muted"
+              className="hidden"
             />
+            <button
+              type="button"
+              onClick={() => coverFileInputRef.current?.click()}
+              className="px-3 py-1.5 text-sm rounded border border-border text-foreground hover:bg-tag-bg transition-colors cursor-pointer"
+            >
+              选择图片
+            </button>
+            <p className="mt-1 text-xs text-muted">支持 JPG、PNG、WebP 格式。</p>
           </div>
 
           {/* Slug */}
           <div>
             <label className="block text-sm font-medium text-muted mb-1">
-              链接标识 (Slug)
+              文章链接
             </label>
             <input
               type="text"
-              value={slug}
-              onChange={(e) => setSlug(e.target.value)}
-              placeholder="自动生成"
-              className="w-full px-3 py-1.5 text-sm bg-background border border-border rounded outline-none focus:border-accent font-mono"
+              value={savedSlug || "发布后自动生成"}
+              disabled
+              className="w-full px-3 py-1.5 text-sm bg-tag-bg border border-border rounded text-muted"
             />
           </div>
 
-          {/* Published toggle */}
+          {/* Published status */}
           <div className="flex items-center justify-between">
-            <span className="text-sm font-medium text-muted">发布状态</span>
-            <button
-              onClick={() => setPublished(!published)}
-              className={`relative w-10 h-5 rounded-full transition-colors cursor-pointer ${
-                published ? "bg-accent" : "bg-border"
+            <span className="text-sm font-medium text-muted">当前状态</span>
+            <span
+              className={`text-xs px-2 py-0.5 rounded ${
+                published
+                  ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
+                  : "bg-tag-bg text-tag-text"
               }`}
             >
-              <span
-                className={`absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full transition-transform ${
-                  published ? "translate-x-5" : ""
-                }`}
-              />
-            </button>
+              {published ? "已发布" : "草稿"}
+            </span>
           </div>
+          <p className="text-xs text-muted">“保存草稿”会保持草稿状态；点击“发布”后文章才会对外可见。</p>
 
           {/* Pinned toggle (admin only) */}
           {user?.role === "ADMIN" && (

@@ -44,6 +44,8 @@ export default function EditPage({
   const autoSaveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const contentRef = useRef<object | null>(null);
   const currentSlugRef = useRef(initialSlug);
+  const titleInputRef = useRef<HTMLInputElement>(null);
+  const coverFileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     contentRef.current = content;
@@ -81,8 +83,17 @@ export default function EditPage({
 
   const save = useCallback(
     async (pub?: boolean) => {
-      if (!title.trim()) return;
+      if (!title.trim()) {
+        titleInputRef.current?.focus();
+        alert("请输入标题");
+        return;
+      }
       if (!contentRef.current) return;
+      const targetPublished = pub !== undefined ? pub : published;
+      if (targetPublished && tags.length === 0) {
+        const shouldContinue = confirm("当前未添加标签，发布后不利于分类和检索。仍要继续发布吗？");
+        if (!shouldContinue) return;
+      }
       setSaving(true);
       try {
         const body = {
@@ -90,7 +101,6 @@ export default function EditPage({
           content: contentRef.current,
           tags,
           coverImage: coverImage || undefined,
-          slug: slug || undefined,
           published: pub !== undefined ? pub : published,
           pinned,
         };
@@ -115,7 +125,7 @@ export default function EditPage({
         setSaving(false);
       }
     },
-    [title, tags, coverImage, slug, pinned, published, initialSlug, router]
+    [title, tags, coverImage, pinned, published, initialSlug, router]
   );
 
   // Auto-save every 30s
@@ -202,12 +212,32 @@ export default function EditPage({
               <button
                 onClick={() => setSidebarOpen(!sidebarOpen)}
                 className="lg:hidden px-2 py-1.5 text-sm rounded border border-border cursor-pointer"
-                title="设置"
+                title="更多设置"
               >
                 ⚙
               </button>
             </div>
           </div>
+
+          <div className="mb-4 p-3 border border-border rounded-lg bg-card space-y-2">
+            <div className="flex items-center justify-between">
+              <label className="text-sm font-medium text-foreground" htmlFor="post-title">
+                标题 <span className="text-red-500">*</span>
+              </label>
+              <span className="text-xs px-2 py-0.5 rounded bg-tag-bg text-tag-text">必填</span>
+            </div>
+            <input
+              id="post-title"
+              ref={titleInputRef}
+              type="text"
+              required
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              placeholder="请输入文章标题（必填）"
+              className="w-full px-3 py-2 text-lg font-semibold bg-background border border-border rounded outline-none focus:border-accent"
+            />
+          </div>
+
           {content && <Editor content={content} onChange={setContent} />}
         </div>
 
@@ -217,20 +247,6 @@ export default function EditPage({
             sidebarOpen ? "block" : "hidden"
           } lg:block w-full lg:w-80 border-t lg:border-t-0 lg:border-l border-border p-4 space-y-5`}
         >
-          {/* Title */}
-          <div>
-            <label className="block text-sm font-medium text-muted mb-1">
-              标题
-            </label>
-            <input
-              type="text"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              placeholder="文章标题"
-              className="w-full px-3 py-2 text-lg font-semibold bg-background border border-border rounded outline-none focus:border-accent"
-            />
-          </div>
-
           {/* Tags */}
           <div>
             <label className="block text-sm font-medium text-muted mb-1">
@@ -283,30 +299,38 @@ export default function EditPage({
               </div>
             )}
             <input
+              ref={coverFileInputRef}
               type="file"
               accept="image/*"
               onChange={handleCoverUpload}
-              className="text-sm text-muted"
+              className="hidden"
             />
+            <button
+              type="button"
+              onClick={() => coverFileInputRef.current?.click()}
+              className="px-3 py-1.5 text-sm rounded border border-border text-foreground hover:bg-tag-bg transition-colors cursor-pointer"
+            >
+              选择图片
+            </button>
+            <p className="mt-1 text-xs text-muted">支持 JPG、PNG、WebP 格式。</p>
           </div>
 
           {/* Slug */}
           <div>
             <label className="block text-sm font-medium text-muted mb-1">
-              链接标识 (Slug)
+              文章链接
             </label>
             <input
               type="text"
               value={slug}
-              onChange={(e) => setSlug(e.target.value)}
-              placeholder="自动生成"
-              className="w-full px-3 py-1.5 text-sm bg-background border border-border rounded outline-none focus:border-accent font-mono"
+              disabled
+              className="w-full px-3 py-1.5 text-sm bg-tag-bg border border-border rounded text-muted"
             />
           </div>
 
           {/* Published toggle */}
           <div className="flex items-center justify-between">
-            <span className="text-sm font-medium text-muted">发布状态</span>
+            <span className="text-sm font-medium text-muted">当前状态</span>
             <span
               className={`text-xs px-2 py-0.5 rounded ${
                 published
@@ -317,6 +341,7 @@ export default function EditPage({
               {published ? "已发布" : "草稿"}
             </span>
           </div>
+          <p className="text-xs text-muted">“转为草稿”后文章会从公开页面下线，但保留内容以便继续编辑。</p>
 
           {/* Pinned toggle (admin only) */}
           {user?.role === "ADMIN" && (

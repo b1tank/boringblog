@@ -94,7 +94,6 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
       coverImage,
       published,
       pinned,
-      slug: newSlug,
     } = body as {
       title?: string;
       content?: object;
@@ -102,7 +101,6 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
       coverImage?: string;
       published?: boolean;
       pinned?: boolean;
-      slug?: string;
     };
 
     const data: Record<string, unknown> = {};
@@ -110,20 +108,6 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
     if (title !== undefined) data.title = title;
     if (coverImage !== undefined) data.coverImage = coverImage || null;
     if (pinned !== undefined) data.pinned = pinned;
-
-    // Handle slug change
-    if (newSlug && newSlug !== slug) {
-      const existing = await prisma.post.findUnique({
-        where: { slug: newSlug },
-      });
-      if (existing) {
-        return NextResponse.json(
-          { error: "该链接标识已存在" },
-          { status: 409 }
-        );
-      }
-      data.slug = newSlug;
-    }
 
     // Regenerate HTML if content changed
     if (content) {

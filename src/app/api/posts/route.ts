@@ -112,7 +112,6 @@ export async function POST(request: NextRequest) {
       coverImage,
       published,
       pinned,
-      slug: customSlug,
     } = body as {
       title: string;
       content: object;
@@ -120,7 +119,6 @@ export async function POST(request: NextRequest) {
       coverImage?: string;
       published?: boolean;
       pinned?: boolean;
-      slug?: string;
     };
 
     if (!title || !content) {
@@ -130,7 +128,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const slug = customSlug || generateSlug(title);
+    const slug = generateSlug(title);
 
     // Check slug uniqueness
     const existing = await prisma.post.findUnique({ where: { slug } });
