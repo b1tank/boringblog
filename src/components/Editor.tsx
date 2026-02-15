@@ -7,12 +7,40 @@ import Image from "@tiptap/extension-image";
 import { Table, TableRow, TableHeader, TableCell } from "@tiptap/extension-table";
 import Placeholder from "@tiptap/extension-placeholder";
 import Link from "@tiptap/extension-link";
-import Youtube from "@tiptap/extension-youtube";
+import VideoEmbed from "@/lib/editor/videoEmbed";
 import { useCallback, useRef, useState } from "react";
 
 interface EditorProps {
   content: object | null;
   onChange: (json: object) => void;
+}
+
+const VIDEO_HOST_HINTS = [
+  "youtube.com",
+  "youtu.be",
+  "vimeo.com",
+  "dailymotion.com",
+  "twitch.tv",
+  "bilibili.com",
+  "x.com",
+  "twitter.com",
+  "facebook.com",
+  "instagram.com",
+  "tiktok.com",
+  "loom.com",
+  "wistia.com",
+  "rutube.ru",
+];
+
+function isLikelyEmbeddableVideoUrl(parsedUrl: URL): boolean {
+  const host = parsedUrl.hostname.replace(/^www\./, "").toLowerCase();
+  const path = `${parsedUrl.pathname}${parsedUrl.search}`.toLowerCase();
+
+  if (VIDEO_HOST_HINTS.some((hint) => host.includes(hint))) {
+    return true;
+  }
+
+  return /(watch|video|embed|player|shorts|clip|live|reel)\b/.test(path);
 }
 
 export default function Editor({ content, onChange }: EditorProps) {
@@ -37,7 +65,7 @@ export default function Editor({ content, onChange }: EditorProps) {
         openOnClick: false,
         HTMLAttributes: { class: "text-accent underline" },
       }),
-      Youtube.configure({ inline: false }),
+      VideoEmbed,
     ],
     content: content || undefined,
     onUpdate: ({ editor }) => {
@@ -78,25 +106,33 @@ export default function Editor({ content, onChange }: EditorProps) {
   );
 
   const handleVideoEmbed = useCallback(() => {
-    const url = prompt("输入YouTube或Bilibili视频链接");
-    if (!url || !editor) return;
+    const rawUrl = prompt("输入视频链接");
+    if (!rawUrl || !editor) return;
 
-    // YouTube
-    if (url.includes("youtube.com") || url.includes("youtu.be")) {
-      editor.commands.setYoutubeVideo({ src: url });
+    let parsedUrl: URL;
+    try {
+      parsedUrl = new URL(rawUrl.trim());
+    } catch {
+      alert("链接格式无效");
       return;
     }
 
-    // Bilibili
-    const biliMatch = url.match(/bilibili\.com\/video\/(BV[\w]+)/);
-    if (biliMatch) {
-      const bvid = biliMatch[1];
-      const iframe = `<div style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;"><iframe src="https://player.bilibili.com/player.html?bvid=${bvid}&page=1&autoplay=0" style="position:absolute;top:0;left:0;width:100%;height:100%;" scrolling="no" border="0" frameborder="no" framespacing="0" allowfullscreen></iframe></div>`;
-      editor.commands.insertContent(iframe);
+    const isDirectVideo = /\.(mp4|webm|ogg)(\?.*)?$/i.test(parsedUrl.pathname + parsedUrl.search);
+    if (!/^https?:$/.test(parsedUrl.protocol)) {
+      alert("仅支持 http 或 https 链接");
       return;
     }
 
-    alert("暂不支持该视频链接格式");
+    if (!isDirectVideo && !isLikelyEmbeddableVideoUrl(parsedUrl)) {
+      const shouldContinue = confirm("该链接看起来不像可嵌入的视频链接，仍要插入吗？");
+      if (!shouldContinue) return;
+    }
+
+    editor
+      .chain()
+      .focus()
+      .setVideoEmbed({ src: parsedUrl.toString(), direct: isDirectVideo })
+      .run();
   }, [editor]);
 
   const setLink = useCallback(() => {

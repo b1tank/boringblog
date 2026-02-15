@@ -21,7 +21,7 @@
 | Editor | WYSIWYG rich-text editor (Tiptap-based) | ✅ |
 | Editor | Bold, italic, headings, lists, blockquotes | ✅ |
 | Editor | Inline image insertion (upload to Azure Blob Storage) | ✅ |
-| Editor | Video embed (YouTube, Bilibili via URL paste) | ✅ |
+| Editor | Video embed (common video links via URL paste) | ✅ |
 | Editor | Video file upload & hosting | ❌ MVP / ✅ Future |
 | Editor | Math content via image upload (photo/screenshot) | ✅ |
 | Editor | Visual equation editor (MathLive — click symbols, no syntax) | ❌ MVP / ✅ Future |
@@ -93,7 +93,7 @@
 | Image upload to Azure Blob Storage | ✅ |
 | Auto image compression / resize on upload | ✅ |
 | Image alt-text support | ✅ |
-| Video embed via URL (YouTube, Bilibili) | ✅ |
+| Video embed via URL (common video links) | ✅ |
 | Direct video upload | ❌ MVP / ✅ Future |
 | Media library / gallery view | ❌ MVP / ✅ Future |
 | Max upload size limit (configurable, default 10MB) | ✅ |

@@ -9,7 +9,7 @@ import StarterKit from "@tiptap/starter-kit";
 import Image from "@tiptap/extension-image";
 import { Table, TableRow, TableHeader, TableCell } from "@tiptap/extension-table";
 import Link from "@tiptap/extension-link";
-import Youtube from "@tiptap/extension-youtube";
+import VideoEmbed from "@/lib/editor/videoEmbed";
 
 const extensions = [
   StarterKit,
@@ -19,7 +19,7 @@ const extensions = [
   TableHeader,
   TableCell,
   Link,
-  Youtube,
+  VideoEmbed,
 ];
 
 type RouteParams = { params: Promise<{ slug: string }> };

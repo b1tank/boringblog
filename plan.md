@@ -548,7 +548,7 @@ Extensions:
 - `Table` + `TableRow` + `TableHeader` + `TableCell`
 - `Placeholder` ("开始写作..." placeholder text)
 - `Link` (auto-detect URLs)
-- Custom `VideoEmbed` extension (YouTube/Bilibili iframe embed from URL)
+- Custom `VideoEmbed` extension (common video link iframe embed from URL)
 
 Editor chrome:
 - Floating toolbar on text selection (bold, italic, heading, link, etc.)
@@ -566,10 +566,9 @@ Editor chrome:
 
 ### 4.3 Video Embed (~40 lines)
 
-- Custom Tiptap node: user pastes YouTube/Bilibili URL
-- Parse URL → extract video ID → render responsive iframe
-- YouTube: `https://www.youtube.com/embed/{id}`
-- Bilibili: `https://player.bilibili.com/player.html?bvid={id}`
+- Custom Tiptap node: user pastes a common video URL
+- Parse URL and normalize known formats when needed
+- Render responsive iframe (or native video element for direct media links)
 - No file upload for MVP
 
 ### 4.4 Post CRUD API (~100 lines)
@@ -752,7 +751,7 @@ Phase 2 (Auth)   Phase 3 (Reading)     ← PARALLEL
 | Risk | Impact | Mitigation |
 |------|--------|------------|
 | PostgreSQL Flexible Server cold start latency | Slow first load after idle | Use `B1ms` (always-on burstable), not serverless tier |
-| Tiptap editor complexity for custom video embed | 1-2 day extra effort | Use existing `@tiptap/extension-youtube` + write minimal Bilibili extension |
+| Tiptap editor complexity for custom video embed | 1-2 day extra effort | Use a generic URL normalizer with responsive iframe/native video rendering |
 | Azure Blob Storage CORS issues | Image upload fails | Test CORS config early in Phase 0.2; allow `yourdomain.com` + `localhost:3000` |
 | Chinese slug generation | Bad URLs for Chinese titles | Use `pinyin` npm package to transliterate; fallback to cuid |
 | Namecheap DNS propagation delay | Site unreachable for hours | Deploy with `*.azurewebsites.net` first; add custom domain after DNS propagates |
