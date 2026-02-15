@@ -178,7 +178,7 @@ export default function EditPage({
         <div className="flex-1 min-w-0 p-4">
           <div className="flex items-center justify-between mb-4">
             <h1 className="text-lg font-semibold text-foreground">编辑文章</h1>
-            <div className="flex flex-wrap gap-2">
+            <div className="flex flex-wrap items-center gap-2">
               {lastSaved && (
                 <span className="text-xs text-muted">
                   上次保存 {lastSaved.toLocaleTimeString("zh-CN")}
