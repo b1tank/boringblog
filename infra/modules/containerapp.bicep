@@ -42,6 +42,9 @@ param logAnalyticsCustomerId string
 @secure()
 param logAnalyticsSharedKey string
 
+@description('Custom domain name (e.g. lezhiweng.com)')
+param domainName string = ''
+
 // Container Registry to store the blog Docker image
 resource acr 'Microsoft.ContainerRegistry/registries@2023-07-01' = {
   name: 'boringblogacr'
@@ -69,6 +72,27 @@ resource containerAppEnv 'Microsoft.App/managedEnvironments@2024-03-01' = {
   }
 }
 
+// Managed certificates for custom domains (only when domainName is set)
+resource certApex 'Microsoft.App/managedEnvironments/managedCertificates@2024-03-01' = if (!empty(domainName)) {
+  parent: containerAppEnv
+  name: 'cert-${replace(domainName, '.', '-')}'
+  location: location
+  properties: {
+    subjectName: domainName
+    domainControlValidation: 'CNAME'
+  }
+}
+
+resource certWww 'Microsoft.App/managedEnvironments/managedCertificates@2024-03-01' = if (!empty(domainName)) {
+  parent: containerAppEnv
+  name: 'cert-www-${replace(domainName, '.', '-')}'
+  location: location
+  properties: {
+    subjectName: 'www.${domainName}'
+    domainControlValidation: 'CNAME'
+  }
+}
+
 // Container App
 resource containerApp 'Microsoft.App/containerApps@2024-03-01' = {
   name: 'boringblog-app'
@@ -87,6 +111,18 @@ resource containerApp 'Microsoft.App/containerApps@2024-03-01' = {
         targetPort: 3000
         transport: 'http'
         allowInsecure: false
+        customDomains: empty(domainName) ? null : [
+          {
+            name: domainName
+            certificateId: certApex.id
+            bindingType: 'SniEnabled'
+          }
+          {
+            name: 'www.${domainName}'
+            certificateId: certWww.id
+            bindingType: 'SniEnabled'
+          }
+        ]
       }
       registries: [
         {

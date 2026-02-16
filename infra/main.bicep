@@ -95,6 +95,7 @@ module containerApp 'modules/containerapp.bicep' = {
     appInsightsConnectionString: appInsights.outputs.connectionString
     logAnalyticsCustomerId: appInsights.outputs.logAnalyticsCustomerId
     logAnalyticsSharedKey: appInsights.outputs.logAnalyticsSharedKey
+    domainName: domainName
   }
 }
 
