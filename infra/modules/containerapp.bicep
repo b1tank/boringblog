@@ -45,6 +45,9 @@ param logAnalyticsSharedKey string
 @description('Custom domain name (e.g. lezhiweng.com)')
 param domainName string = ''
 
+@description('Container image to deploy (e.g. boringblogacr.azurecr.io/boringblog:latest)')
+param containerImage string = ''
+
 // Container Registry to store the blog Docker image
 resource acr 'Microsoft.ContainerRegistry/registries@2023-07-01' = {
   name: 'boringblogacr'
@@ -158,8 +161,7 @@ resource containerApp 'Microsoft.App/containerApps@2024-03-01' = {
       containers: [
         {
           name: 'boringblog'
-          // Initial placeholder image — will be replaced by CI/CD
-          image: 'mcr.microsoft.com/azuredocs/containerapps-helloworld:latest'
+          image: !empty(containerImage) ? containerImage : '${acr.properties.loginServer}/boringblog:latest'
           resources: {
             cpu: json('0.25')
             memory: '0.5Gi'
