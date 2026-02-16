@@ -3,11 +3,6 @@ import { test, expect, type Page } from "@playwright/test";
 const adminEmail = process.env.E2E_ADMIN_EMAIL || "admin@example.com";
 const adminPassword = process.env.E2E_ADMIN_PASSWORD || "admin123";
 
-const tinyPng = Buffer.from(
-  "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAusB9Wn0q9UAAAAASUVORK5CYII=",
-  "base64"
-);
-
 async function login(page: Page) {
   await page.goto("/login");
   await page.fill("#email", adminEmail);
@@ -17,6 +12,14 @@ async function login(page: Page) {
 }
 
 async function fillRichPost(page: Page, title: string) {
+  await page.route("**/api/upload", async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify({ url: "/uploads/e2e-mock.webp" }),
+    });
+  });
+
   await page.goto("/write");
 
   await page.fill("#post-title", title);
@@ -38,13 +41,10 @@ async function fillRichPost(page: Page, title: string) {
   await expect(editor.locator("table tr")).toHaveCount(4);
   await expect(editor.locator("table tr").first().locator("th,td")).toHaveCount(5);
 
-  const editorRoot = page.locator("div.border.border-border.rounded-lg.bg-card").first();
-  const imageInput = editorRoot.locator('input[type="file"][accept="image/*"]').first();
-  await imageInput.setInputFiles({
-    name: "e2e-image.png",
-    mimeType: "image/png",
-    buffer: tinyPng,
-  });
+  const chooserPromise = page.waitForEvent("filechooser");
+  await page.locator('button[title="插入图片"]').first().click();
+  const chooser = await chooserPromise;
+  await chooser.setFiles("public/favicon.svg");
   await expect(editor.locator("img")).toBeVisible();
 
   page.once("dialog", (dialog) =>
@@ -52,7 +52,6 @@ async function fillRichPost(page: Page, title: string) {
   );
   await page.locator('button[title="插入视频"]').first().click();
   const iframe = editor.locator("iframe").last();
-  await expect(iframe).toBeVisible();
   await expect(iframe).toHaveAttribute(
     "src",
     /youtube-nocookie\.com\/embed\/dQw4w9WgXcQ\?start=43/

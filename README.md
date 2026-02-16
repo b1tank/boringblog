@@ -74,7 +74,7 @@ Optional env overrides (defaults target seeded admin):
 
 - `E2E_ADMIN_EMAIL` (default: `admin@example.com`)
 - `E2E_ADMIN_PASSWORD` (default: `admin123`)
-- `PLAYWRIGHT_BASE_URL` (default: `http://127.0.0.1:3000`)
+- `PLAYWRIGHT_BASE_URL` (default: `http://127.0.0.1:3300`)
 
 ### Option B: Docker Run (full app in containers)
 

@@ -1,6 +1,6 @@
 import { defineConfig, devices } from "@playwright/test";
 
-const baseURL = process.env.PLAYWRIGHT_BASE_URL || "http://127.0.0.1:3000";
+const baseURL = process.env.PLAYWRIGHT_BASE_URL || "http://127.0.0.1:3300";
 const hasExternalServer = Boolean(process.env.PLAYWRIGHT_BASE_URL);
 
 export default defineConfig({
@@ -19,7 +19,7 @@ export default defineConfig({
   webServer: hasExternalServer
     ? undefined
     : {
-        command: "npm run dev",
+        command: "npm run dev -- --port 3300",
         url: baseURL,
         reuseExistingServer: !process.env.CI,
         timeout: 180_000,
