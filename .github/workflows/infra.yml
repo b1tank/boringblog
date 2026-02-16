@@ -82,10 +82,11 @@ jobs:
           APP="boringblog-app"
           ENV="boringblog-env"
 
-          # Check if custom domains are already bound
-          EXISTING=$(az containerapp hostname list --name $APP --resource-group $RG -o tsv 2>/dev/null | wc -l)
-          if [ "$EXISTING" -ge 2 ]; then
-            echo "Custom domains already configured, skipping."
+          # Check if custom domains are already bound with certs
+          BOUND=$(az containerapp hostname list --name $APP --resource-group $RG \
+            --query "[?bindingType=='SniEnabled']" -o tsv 2>/dev/null | wc -l)
+          if [ "$BOUND" -ge 2 ]; then
+            echo "Custom domains already configured with certs, skipping."
             exit 0
           fi
 
@@ -101,8 +102,25 @@ jobs:
             --name $ENV --resource-group $RG \
             --hostname "www.$DOMAIN" --validation-method CNAME 2>/dev/null || true
 
-          echo "=== Step 3: Bind certificates to hostnames ==="
-          # Find the cert IDs
+          echo "=== Step 3: Wait for certificates to provision (up to 5 min) ==="
+          for i in $(seq 1 30); do
+            APEX_STATE=$(az containerapp env certificate list --name $ENV --resource-group $RG \
+              --query "[?properties.subjectName=='$DOMAIN'].properties.provisioningState" -o tsv | head -1)
+            WWW_STATE=$(az containerapp env certificate list --name $ENV --resource-group $RG \
+              --query "[?properties.subjectName=='www.$DOMAIN'].properties.provisioningState" -o tsv | head -1)
+            echo "  Attempt $i/30: apex=$APEX_STATE, www=$WWW_STATE"
+            if [ "$APEX_STATE" = "Succeeded" ] && [ "$WWW_STATE" = "Succeeded" ]; then
+              echo "  Both certs ready!"
+              break
+            fi
+            if [ "$APEX_STATE" = "Failed" ] || [ "$WWW_STATE" = "Failed" ]; then
+              echo "  Warning: A cert failed. Check DNS records and re-run this workflow."
+              break
+            fi
+            sleep 10
+          done
+
+          echo "=== Step 4: Bind certificates to hostnames ==="
           APEX_CERT=$(az containerapp env certificate list --name $ENV --resource-group $RG \
             --query "[?properties.subjectName=='$DOMAIN' && properties.provisioningState=='Succeeded'].id" -o tsv | head -1)
           WWW_CERT=$(az containerapp env certificate list --name $ENV --resource-group $RG \
@@ -110,14 +128,16 @@ jobs:
 
           if [ -n "$APEX_CERT" ]; then
             az containerapp hostname bind --name $APP --resource-group $RG --hostname "$DOMAIN" --certificate "$APEX_CERT" || true
+            echo "  Bound $DOMAIN"
           else
-            echo "Warning: Apex cert not yet ready, bind manually later"
+            echo "  Warning: Apex cert not ready — re-run this workflow after DNS propagates"
           fi
 
           if [ -n "$WWW_CERT" ]; then
             az containerapp hostname bind --name $APP --resource-group $RG --hostname "www.$DOMAIN" --certificate "$WWW_CERT" || true
+            echo "  Bound www.$DOMAIN"
           else
-            echo "Warning: WWW cert not yet ready, bind manually later"
+            echo "  Warning: WWW cert not ready — re-run this workflow after DNS propagates"
           fi
 
           echo "=== Done ==="
