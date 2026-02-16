@@ -89,6 +89,16 @@ module containerApp 'modules/containerapp.bicep' = {
     sessionSecret: sessionSecret
     acsConnectionString: email.outputs.connectionString
     storageAccountKey: storage.outputs.accountKey
+    appInsightsConnectionString: appInsights.outputs.connectionString
+    logAnalyticsCustomerId: appInsights.outputs.logAnalyticsCustomerId
+    logAnalyticsSharedKey: appInsights.outputs.logAnalyticsSharedKey
+  }
+}
+
+module appInsights 'modules/appinsights.bicep' = {
+  name: 'appinsights'
+  params: {
+    location: location
   }
 }
 
@@ -121,3 +131,9 @@ output acsSenderDomain string = email.outputs.azureManagedSenderDomain
 
 @description('PostgreSQL server FQDN')
 output postgresFqdn string = postgres.outputs.fqdn
+
+@description('Application Insights connection string')
+output appInsightsConnectionString string = appInsights.outputs.connectionString
+
+@description('Application Insights instrumentation key')
+output appInsightsInstrumentationKey string = appInsights.outputs.instrumentationKey

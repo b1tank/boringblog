@@ -32,6 +32,16 @@ param acsConnectionString string
 @secure()
 param storageAccountKey string
 
+@description('Application Insights connection string')
+param appInsightsConnectionString string = ''
+
+@description('Log Analytics workspace customer ID')
+param logAnalyticsCustomerId string
+
+@description('Log Analytics workspace shared key')
+@secure()
+param logAnalyticsSharedKey string
+
 // Container Registry to store the blog Docker image
 resource acr 'Microsoft.ContainerRegistry/registries@2023-07-01' = {
   name: 'boringblogacr'
@@ -44,18 +54,6 @@ resource acr 'Microsoft.ContainerRegistry/registries@2023-07-01' = {
   }
 }
 
-// Log Analytics workspace (required by Container Apps Environment)
-resource logAnalytics 'Microsoft.OperationalInsights/workspaces@2023-09-01' = {
-  name: 'boringblog-logs'
-  location: location
-  properties: {
-    sku: {
-      name: 'PerGB2018'
-    }
-    retentionInDays: 30
-  }
-}
-
 // Container Apps Environment
 resource containerAppEnv 'Microsoft.App/managedEnvironments@2024-03-01' = {
   name: 'boringblog-env'
@@ -64,8 +62,8 @@ resource containerAppEnv 'Microsoft.App/managedEnvironments@2024-03-01' = {
     appLogsConfiguration: {
       destination: 'log-analytics'
       logAnalyticsConfiguration: {
-        customerId: logAnalytics.properties.customerId
-        sharedKey: logAnalytics.listKeys().primarySharedKey
+        customerId: logAnalyticsCustomerId
+        sharedKey: logAnalyticsSharedKey
       }
     }
   }
@@ -166,6 +164,10 @@ resource containerApp 'Microsoft.App/containerApps@2024-03-01' = {
             {
               name: 'PORT'
               value: '3000'
+            }
+            {
+              name: 'APPLICATIONINSIGHTS_CONNECTION_STRING'
+              value: appInsightsConnectionString
             }
           ]
           probes: [
