@@ -62,9 +62,6 @@ module storage 'modules/storage.bicep' = {
 
 module email 'modules/email.bicep' = {
   name: 'email'
-  params: {
-    location: location
-  }
 }
 
 module keyVault 'modules/keyvault.bicep' = {
@@ -84,7 +81,6 @@ module containerApp 'modules/containerapp.bicep' = {
   params: {
     location: location
     managedIdentityId: identity.outputs.id
-    managedIdentityClientId: identity.outputs.clientId
     storageAccountName: storageAccountName
     siteUrl: siteUrl
     acsSenderAddress: 'DoNotReply@${email.outputs.azureManagedSenderDomain}'
@@ -110,15 +106,12 @@ module grafana 'modules/grafana.bicep' = {
   name: 'grafana'
   params: {
     location: location
-    appInsightsId: appInsights.outputs.id
-    logAnalyticsWorkspaceId: appInsights.outputs.logAnalyticsWorkspaceId
   }
 }
 
 module alerts 'modules/alerts.bicep' = {
   name: 'alerts'
   params: {
-    location: location
     alertEmail: alertEmail
     appInsightsId: appInsights.outputs.id
   }

@@ -1,6 +1,3 @@
-@description('Azure region for all resources')
-param location string = resourceGroup().location
-
 @description('Email address for alert notifications')
 param alertEmail string
 

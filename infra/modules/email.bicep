@@ -1,6 +1,3 @@
-@description('Azure region for all resources')
-param location string = resourceGroup().location
-
 resource emailService 'Microsoft.Communication/emailServices@2023-04-01' = {
   name: 'boringblog-email'
   location: 'global'
@@ -31,8 +28,8 @@ resource communicationService 'Microsoft.Communication/communicationServices@202
   }
 }
 
-#disable-next-line outputs-should-not-contain-secrets
 @description('ACS connection string for sending emails')
+#disable-next-line outputs-should-not-contain-secrets
 output connectionString string = communicationService.listKeys().primaryConnectionString
 
 @description('Azure-managed sender address (DoNotReply@<guid>.azurecomm.net)')

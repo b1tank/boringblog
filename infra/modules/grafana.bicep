@@ -1,12 +1,6 @@
 @description('Azure region for all resources')
 param location string = resourceGroup().location
 
-@description('Application Insights resource ID for data source linkage')
-param appInsightsId string
-
-@description('Log Analytics workspace resource ID for data source linkage')
-param logAnalyticsWorkspaceId string
-
 // Azure Managed Grafana instance
 resource grafana 'Microsoft.Dashboard/grafana@2023-09-01' = {
   name: 'boringblog-grafana'

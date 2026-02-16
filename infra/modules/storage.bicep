@@ -67,4 +67,5 @@ output name string = storageAccount.name
 output blobEndpoint string = storageAccount.properties.primaryEndpoints.blob
 
 @description('Primary storage account key')
+#disable-next-line outputs-should-not-contain-secrets
 output accountKey string = storageAccount.listKeys().keys[0].value

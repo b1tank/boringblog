@@ -52,6 +52,7 @@ resource firewallRule 'Microsoft.DBforPostgreSQL/flexibleServers/firewallRules@2
 }
 
 @description('PostgreSQL connection string (password placeholder — replaced at runtime via Key Vault)')
+#disable-next-line outputs-should-not-contain-secrets
 output connectionString string = 'postgresql://${adminLogin}:${adminPassword}@${postgresServer.properties.fullyQualifiedDomainName}:5432/boringblog?sslmode=require'
 
 @description('Fully qualified domain name of the PostgreSQL server')

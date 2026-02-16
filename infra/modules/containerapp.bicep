@@ -4,9 +4,6 @@ param location string = resourceGroup().location
 @description('Resource ID of the user-assigned managed identity')
 param managedIdentityId string
 
-@description('Client ID of the user-assigned managed identity')
-param managedIdentityClientId string
-
 @description('Azure Storage account name')
 param storageAccountName string
 
