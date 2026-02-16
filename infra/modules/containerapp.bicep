@@ -79,7 +79,7 @@ resource certApex 'Microsoft.App/managedEnvironments/managedCertificates@2024-03
   location: location
   properties: {
     subjectName: domainName
-    domainControlValidation: 'CNAME'
+    domainControlValidation: 'HTTP'
   }
 }
 
