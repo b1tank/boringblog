@@ -9,6 +9,28 @@ import Placeholder from "@tiptap/extension-placeholder";
 import Link from "@tiptap/extension-link";
 import VideoEmbed from "@/lib/editor/videoEmbed";
 import { useCallback, useRef, useState } from "react";
+import {
+  Bold,
+  Italic,
+  Heading1,
+  Heading2,
+  Heading3,
+  Quote,
+  List,
+  ListOrdered,
+  Code2,
+  ImageIcon,
+  Video,
+  Table2,
+  Undo2,
+  Redo2,
+  Minus,
+  Link2,
+  Rows3,
+  Columns3,
+  Plus,
+  Trash2,
+} from "lucide-react";
 
 interface EditorProps {
   content: object | null;
@@ -232,93 +254,145 @@ export default function Editor({ content, onChange }: EditorProps) {
           onClick={() => editor.chain().focus().toggleBold().run()}
           title="粗体"
         >
-          <BoldIcon />
+          <Bold className="h-4 w-4" strokeWidth={2} />
         </ToolbarBtn>
         <ToolbarBtn
           active={editor.isActive("italic")}
           onClick={() => editor.chain().focus().toggleItalic().run()}
           title="斜体"
         >
-          <ItalicIcon />
+          <Italic className="h-4 w-4" strokeWidth={2} />
         </ToolbarBtn>
         <ToolbarBtn
           active={editor.isActive("heading", { level: 1 })}
           onClick={() => editor.chain().focus().toggleHeading({ level: 1 }).run()}
           title="标题1"
         >
-          <span className="inline-flex items-center gap-0.5">
-            <HeadingIcon />
-            <span className="text-[10px] font-semibold leading-none">1</span>
-          </span>
+          <Heading1 className="h-4 w-4" strokeWidth={2} />
         </ToolbarBtn>
         <ToolbarBtn
           active={editor.isActive("heading", { level: 2 })}
           onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
           title="标题2"
         >
-          <span className="inline-flex items-center gap-0.5">
-            <HeadingIcon />
-            <span className="text-[10px] font-semibold leading-none">2</span>
-          </span>
+          <Heading2 className="h-4 w-4" strokeWidth={2} />
         </ToolbarBtn>
         <ToolbarBtn
           active={editor.isActive("heading", { level: 3 })}
           onClick={() => editor.chain().focus().toggleHeading({ level: 3 }).run()}
           title="标题3"
         >
-          <span className="inline-flex items-center gap-0.5">
-            <HeadingIcon />
-            <span className="text-[10px] font-semibold leading-none">3</span>
-          </span>
+          <Heading3 className="h-4 w-4" strokeWidth={2} />
         </ToolbarBtn>
         <ToolbarBtn
           active={editor.isActive("blockquote")}
           onClick={() => editor.chain().focus().toggleBlockquote().run()}
           title="引用"
         >
-          <QuoteIcon />
+          <Quote className="h-4 w-4" strokeWidth={2} />
         </ToolbarBtn>
         <ToolbarBtn
           active={editor.isActive("bulletList")}
           onClick={() => editor.chain().focus().toggleBulletList().run()}
           title="无序列表"
         >
-          <BulletListIcon />
+          <List className="h-4 w-4" strokeWidth={2} />
         </ToolbarBtn>
         <ToolbarBtn
           active={editor.isActive("orderedList")}
           onClick={() => editor.chain().focus().toggleOrderedList().run()}
           title="有序列表"
         >
-          <OrderedListIcon />
+          <ListOrdered className="h-4 w-4" strokeWidth={2} />
         </ToolbarBtn>
         <ToolbarBtn
           active={editor.isActive("codeBlock")}
           onClick={() => editor.chain().focus().toggleCodeBlock().run()}
           title="代码块"
         >
-          <CodeIcon />
+          <Code2 className="h-4 w-4" strokeWidth={2} />
         </ToolbarBtn>
         <ToolbarBtn active={false} onClick={handleImageClick} title="插入图片">
-          <ImageIcon />
+          <ImageIcon className="h-4 w-4" strokeWidth={2} />
         </ToolbarBtn>
         <ToolbarBtn active={false} onClick={handleVideoEmbed} title="插入视频">
-          <VideoIcon />
+          <Video className="h-4 w-4" strokeWidth={2} />
         </ToolbarBtn>
         <ToolbarBtn
           active={false}
           onClick={handleInsertTable}
           title="插入表格"
         >
-          <TableIcon />
+          <Table2 className="h-4 w-4" strokeWidth={2} />
         </ToolbarBtn>
+        {editor.isActive("table") && (
+          <>
+            <span className="mx-1 h-6 w-px bg-border" aria-hidden="true" />
+            <ToolbarBtn
+              active={false}
+              onClick={() => editor.chain().focus().addRowBefore().run()}
+              disabled={!editor.can().addRowBefore()}
+              title="上方插入行"
+            >
+              <TableControlIcon axis="row" add />
+            </ToolbarBtn>
+            <ToolbarBtn
+              active={false}
+              onClick={() => editor.chain().focus().addRowAfter().run()}
+              disabled={!editor.can().addRowAfter()}
+              title="下方插入行"
+            >
+              <TableControlIcon axis="row" add />
+            </ToolbarBtn>
+            <ToolbarBtn
+              active={false}
+              onClick={() => editor.chain().focus().deleteRow().run()}
+              disabled={!editor.can().deleteRow()}
+              title="删除当前行"
+            >
+              <TableControlIcon axis="row" add={false} />
+            </ToolbarBtn>
+            <ToolbarBtn
+              active={false}
+              onClick={() => editor.chain().focus().addColumnBefore().run()}
+              disabled={!editor.can().addColumnBefore()}
+              title="左侧插入列"
+            >
+              <TableControlIcon axis="col" add />
+            </ToolbarBtn>
+            <ToolbarBtn
+              active={false}
+              onClick={() => editor.chain().focus().addColumnAfter().run()}
+              disabled={!editor.can().addColumnAfter()}
+              title="右侧插入列"
+            >
+              <TableControlIcon axis="col" add />
+            </ToolbarBtn>
+            <ToolbarBtn
+              active={false}
+              onClick={() => editor.chain().focus().deleteColumn().run()}
+              disabled={!editor.can().deleteColumn()}
+              title="删除当前列"
+            >
+              <TableControlIcon axis="col" add={false} />
+            </ToolbarBtn>
+            <ToolbarBtn
+              active={false}
+              onClick={() => editor.chain().focus().deleteTable().run()}
+              disabled={!editor.can().deleteTable()}
+              title="删除表格"
+            >
+              <Trash2 className="h-4 w-4" strokeWidth={2} />
+            </ToolbarBtn>
+          </>
+        )}
         <ToolbarBtn
           active={false}
           onClick={() => editor.chain().focus().undo().run()}
           disabled={!editor.can().undo()}
           title="撤销"
         >
-          <UndoIcon />
+          <Undo2 className="h-4 w-4" strokeWidth={2} />
         </ToolbarBtn>
         <ToolbarBtn
           active={false}
@@ -326,7 +400,7 @@ export default function Editor({ content, onChange }: EditorProps) {
           disabled={!editor.can().redo()}
           title="重做"
         >
-          <RedoIcon />
+          <Redo2 className="h-4 w-4" strokeWidth={2} />
         </ToolbarBtn>
       </div>
 
@@ -339,25 +413,25 @@ export default function Editor({ content, onChange }: EditorProps) {
           onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
           title="标题"
         >
-          <HeadingIcon />
+          <Heading2 className="h-4 w-4" strokeWidth={2} />
         </FloatingBtn>
         <FloatingBtn onClick={handleImageClick} title="图片">
-          <ImageIcon />
+          <ImageIcon className="h-4 w-4" strokeWidth={2} />
         </FloatingBtn>
         <FloatingBtn onClick={handleVideoEmbed} title="视频">
-          <VideoIcon />
+          <Video className="h-4 w-4" strokeWidth={2} />
         </FloatingBtn>
         <FloatingBtn
           onClick={handleInsertTable}
           title="表格"
         >
-          <TableIcon />
+          <Table2 className="h-4 w-4" strokeWidth={2} />
         </FloatingBtn>
         <FloatingBtn
           onClick={() => editor.chain().focus().setHorizontalRule().run()}
           title="分割线"
         >
-          <HorizontalRuleIcon />
+          <Minus className="h-4 w-4" strokeWidth={2} />
         </FloatingBtn>
       </FloatingMenu>
 
@@ -371,21 +445,21 @@ export default function Editor({ content, onChange }: EditorProps) {
           title="粗体"
           active={editor.isActive("bold")}
         >
-          <BoldIcon />
+          <Bold className="h-4 w-4" strokeWidth={2} />
         </FloatingBtn>
         <FloatingBtn
           onClick={() => editor.chain().focus().toggleItalic().run()}
           title="斜体"
           active={editor.isActive("italic")}
         >
-          <ItalicIcon />
+          <Italic className="h-4 w-4" strokeWidth={2} />
         </FloatingBtn>
         <FloatingBtn
           onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
           title="标题"
           active={editor.isActive("heading")}
         >
-          <HeadingIcon />
+          <Heading2 className="h-4 w-4" strokeWidth={2} />
         </FloatingBtn>
         {showLinkInput ? (
           <span className="flex items-center gap-2 whitespace-nowrap">
@@ -421,7 +495,7 @@ export default function Editor({ content, onChange }: EditorProps) {
             title="链接"
             active={editor.isActive("link")}
           >
-            <LinkIcon />
+            <Link2 className="h-4 w-4" strokeWidth={2} />
           </FloatingBtn>
         )}
       </BubbleMenu>
@@ -460,7 +534,7 @@ function ToolbarBtn({
       onClick={onClick}
       disabled={disabled}
       title={title}
-      className={`inline-flex h-8 min-w-8 items-center justify-center rounded px-2 text-sm font-medium leading-none transition-colors ${
+      className={`inline-flex h-8 w-8 shrink-0 items-center justify-center rounded p-0 text-sm font-medium leading-none transition-colors ${
         active
           ? "bg-accent text-white"
           : "text-foreground hover:bg-tag-bg"
@@ -487,7 +561,7 @@ function FloatingBtn({
       type="button"
       onClick={onClick}
       title={title}
-      className={`inline-flex h-8 min-w-8 items-center justify-center rounded px-2 text-sm leading-none transition-colors cursor-pointer ${
+      className={`inline-flex h-8 w-8 shrink-0 items-center justify-center rounded p-0 text-sm leading-none transition-colors cursor-pointer ${
         active
           ? "bg-accent text-white"
           : "text-foreground hover:bg-tag-bg"
@@ -498,159 +572,18 @@ function FloatingBtn({
   );
 }
 
-function ImageIcon() {
+function TableControlIcon({ axis, add }: { axis: "row" | "col"; add: boolean }) {
+  const AxisIcon = axis === "row" ? Rows3 : Columns3;
+  const MarkerIcon = add ? Plus : Minus;
+
   return (
-    <svg
-      aria-hidden="true"
-      viewBox="0 0 24 24"
-      className="h-4 w-4"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <rect x="3" y="4" width="18" height="16" rx="2" />
-      <circle cx="9" cy="10" r="1.5" />
-      <path d="m21 16-4.8-4.8a1.5 1.5 0 0 0-2.1 0L7 18.2" />
-    </svg>
+    <span className="relative inline-flex h-4 w-4 items-center justify-center">
+      <AxisIcon className="h-4 w-4" strokeWidth={2} />
+      <MarkerIcon
+        className="absolute -right-1 -bottom-1 h-2.5 w-2.5 rounded-full bg-card"
+        strokeWidth={2.5}
+      />
+    </span>
   );
 }
 
-function BoldIcon() {
-  return (
-    <svg aria-hidden="true" viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M6 4h8a4 4 0 0 1 0 8H6z" />
-      <path d="M6 12h9a4 4 0 1 1 0 8H6z" />
-    </svg>
-  );
-}
-
-function ItalicIcon() {
-  return (
-    <svg aria-hidden="true" viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <line x1="19" y1="4" x2="10" y2="4" />
-      <line x1="14" y1="20" x2="5" y2="20" />
-      <line x1="15" y1="4" x2="9" y2="20" />
-    </svg>
-  );
-}
-
-function HeadingIcon() {
-  return (
-    <svg aria-hidden="true" viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M4 6v12" />
-      <path d="M10 6v12" />
-      <path d="M4 12h6" />
-      <path d="M16 18v-8l-2 2" />
-    </svg>
-  );
-}
-
-function QuoteIcon() {
-  return (
-    <svg aria-hidden="true" viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M8 17H5a3 3 0 0 1 0-6h3v6Z" />
-      <path d="M19 17h-3a3 3 0 0 1 0-6h3v6Z" />
-    </svg>
-  );
-}
-
-function BulletListIcon() {
-  return (
-    <svg aria-hidden="true" viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <circle cx="5" cy="6" r="1" fill="currentColor" stroke="none" />
-      <circle cx="5" cy="12" r="1" fill="currentColor" stroke="none" />
-      <circle cx="5" cy="18" r="1" fill="currentColor" stroke="none" />
-      <line x1="9" y1="6" x2="20" y2="6" />
-      <line x1="9" y1="12" x2="20" y2="12" />
-      <line x1="9" y1="18" x2="20" y2="18" />
-    </svg>
-  );
-}
-
-function OrderedListIcon() {
-  return (
-    <svg aria-hidden="true" viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <line x1="9" y1="6" x2="20" y2="6" />
-      <line x1="9" y1="12" x2="20" y2="12" />
-      <line x1="9" y1="18" x2="20" y2="18" />
-      <path d="M4 7V5l1-.5v3" />
-      <path d="M3.5 12.5h2a1 1 0 0 1 0 2h-2l2-2" />
-      <path d="M3.5 17.5H6l-1 1 1 1H3.5" />
-    </svg>
-  );
-}
-
-function CodeIcon() {
-  return (
-    <svg aria-hidden="true" viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <polyline points="16 18 22 12 16 6" />
-      <polyline points="8 6 2 12 8 18" />
-    </svg>
-  );
-}
-
-function TableIcon() {
-  return (
-    <svg aria-hidden="true" viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <rect x="3" y="4" width="18" height="16" rx="1" />
-      <line x1="3" y1="10" x2="21" y2="10" />
-      <line x1="9" y1="4" x2="9" y2="20" />
-      <line x1="15" y1="4" x2="15" y2="20" />
-    </svg>
-  );
-}
-
-function UndoIcon() {
-  return (
-    <svg aria-hidden="true" viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M9 14 4 9l5-5" />
-      <path d="M20 20a8 8 0 0 0-8-8H4" />
-    </svg>
-  );
-}
-
-function RedoIcon() {
-  return (
-    <svg aria-hidden="true" viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="m15 14 5-5-5-5" />
-      <path d="M4 20a8 8 0 0 1 8-8h8" />
-    </svg>
-  );
-}
-
-function HorizontalRuleIcon() {
-  return (
-    <svg aria-hidden="true" viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <line x1="4" y1="12" x2="20" y2="12" />
-    </svg>
-  );
-}
-
-function LinkIcon() {
-  return (
-    <svg aria-hidden="true" viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M10 13a5 5 0 0 0 7.07 0l2.83-2.83a5 5 0 0 0-7.07-7.07L10 5" />
-      <path d="M14 11a5 5 0 0 0-7.07 0L4.1 13.83a5 5 0 1 0 7.07 7.07L14 19" />
-    </svg>
-  );
-}
-
-function VideoIcon() {
-  return (
-    <svg
-      aria-hidden="true"
-      viewBox="0 0 24 24"
-      className="h-4 w-4"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <rect x="3" y="5" width="18" height="14" rx="2" />
-      <path d="m10 9 5 3-5 3V9Z" fill="currentColor" stroke="none" />
-    </svg>
-  );
-}
