@@ -1,5 +1,18 @@
 name: Deploy Infrastructure
 
+# ─── Required GitHub Secrets ─────────────────────────────────────────────────
+# AZURE_CREDENTIALS          — Service principal JSON (az ad sp create-for-rbac)
+# AZURE_RESOURCE_GROUP       — Target resource group name
+# POSTGRES_ADMIN_PASSWORD    — PostgreSQL admin password
+# SESSION_SECRET             — iron-session encryption key (openssl rand -base64 32)
+#
+# ─── Required GitHub Variables (Settings → Secrets and variables → Variables) ─
+# DOMAIN_NAME                — Custom domain (e.g. lezhiweng.com)
+# STORAGE_ACCOUNT_NAME       — Globally unique, 3-24 lowercase alphanumeric
+# SITE_URL                   — Public URL (e.g. https://lezhiweng.com)
+# ALERT_EMAIL                — Email for Azure Monitor alert notifications
+# ─────────────────────────────────────────────────────────────────────────────
+
 on:
   workflow_dispatch:
     inputs:
@@ -28,7 +41,14 @@ jobs:
           az deployment group what-if \
             --resource-group ${{ secrets.AZURE_RESOURCE_GROUP }} \
             --template-file infra/main.bicep \
-            --parameters infra/main.bicepparam
+            --parameters \
+              domainName='${{ vars.DOMAIN_NAME }}' \
+              postgresAdminLogin='pgadmin' \
+              postgresAdminPassword='${{ secrets.POSTGRES_ADMIN_PASSWORD }}' \
+              sessionSecret='${{ secrets.SESSION_SECRET }}' \
+              storageAccountName='${{ vars.STORAGE_ACCOUNT_NAME }}' \
+              siteUrl='${{ vars.SITE_URL }}' \
+              alertEmail='${{ vars.ALERT_EMAIL }}'
 
       - name: Deploy Bicep
         if: inputs.action == 'deploy'
@@ -36,7 +56,14 @@ jobs:
           az deployment group create \
             --resource-group ${{ secrets.AZURE_RESOURCE_GROUP }} \
             --template-file infra/main.bicep \
-            --parameters infra/main.bicepparam \
+            --parameters \
+              domainName='${{ vars.DOMAIN_NAME }}' \
+              postgresAdminLogin='pgadmin' \
+              postgresAdminPassword='${{ secrets.POSTGRES_ADMIN_PASSWORD }}' \
+              sessionSecret='${{ secrets.SESSION_SECRET }}' \
+              storageAccountName='${{ vars.STORAGE_ACCOUNT_NAME }}' \
+              siteUrl='${{ vars.SITE_URL }}' \
+              alertEmail='${{ vars.ALERT_EMAIL }}' \
             --verbose
 
       - name: Show outputs
