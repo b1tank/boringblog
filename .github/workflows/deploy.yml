@@ -18,6 +18,14 @@ jobs:
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
+      - name: Run Prisma migrations
+        run: |
+          npm ci
+          npx prisma generate
+          npx prisma migrate deploy
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+
       - name: Build and push to ACR
         run: |
           az acr login --name ${{ secrets.ACR_NAME }}
@@ -32,11 +40,3 @@ jobs:
             --name ${{ secrets.CONTAINER_APP_NAME }} \
             --resource-group ${{ secrets.AZURE_RESOURCE_GROUP }} \
             --image ${{ secrets.ACR_NAME }}.azurecr.io/boringblog:${{ github.sha }}
-
-      - name: Run Prisma migrations
-        run: |
-          npm ci
-          npx prisma generate
-          npx prisma migrate deploy
-        env:
-          DATABASE_URL: ${{ secrets.DATABASE_URL }}
