@@ -1,48 +1,29 @@
-# Sprint Plan — BoringBlog Full Build
+# Sprint Plan — Editor UX + Embed + E2E
 
 ## Sprint Scope
 
-Build the entire BoringBlog application from empty repo to working local dev + Azure-ready infra. Skip steps requiring user credentials (az login, Namecheap DNS, GitHub Secrets setup).
+修复编辑器核心交互问题（链接输入框换行、媒体按钮样式、保存时间对齐、表格尺寸可调、YouTube 嵌入可用性），并补充关键路径 Playwright 自动化测试（非琐碎用例）。
 
 ## Prioritized Task List
 
-- [x] **T1** Phase 0.1 — Initialize Next.js, install all deps, .gitignore, .env.example, docker-compose.yml, next.config.ts
-- [x] **T2** Phase 0.2 — Bicep infrastructure (6 modules + main.bicep + bicepparam.example)
-- [x] **T3** Phase 0.4 — GitHub Actions workflows (deploy.yml + infra.yml)
-- [x] **T4** Phase 1 — Prisma schema, client singleton, seed script
-- [x] **T5** Phase 2.1–2.2 — Auth lib (iron-session config) + auth API routes (login, logout, me, forgot, reset)
-- [x] **T6** Phase 2.3–2.4 — Login page, forgot password page, reset password page
-- [x] **T7** Phase 2.5 — Admin settings page (invite users)
-- [x] **T8** Phase 2.6 — Auth middleware
-- [x] **T9** Phase 3.1 — Root layout + typography + Tailwind config
-- [x] **T10** Phase 2.7 + 3.7 — Header component with auth state + dark mode toggle
-- [x] **T11** Phase 3.2 — Homepage (post list)
-- [x] **T12** Phase 3.3 — Post detail page
-- [x] **T13** Phase 3.4–3.5 — Author pages + tag pages
-- [x] **T14** Phase 3.6 — RSS feed
-- [x] **T15** Phase 4.1 — Tiptap editor setup (Editor.tsx + video embed)
-- [x] **T16** Phase 4.2 — Image upload API + Azure Blob helpers
-- [x] **T17** Phase 4.4 — Post CRUD API (/api/posts)
-- [x] **T18** Phase 4.5–4.7 — Write page, edit page, drafts page
-- [x] **T19** Phase 5.1–5.2 — SEO (sitemap, robots, structured data) + performance (ISR, revalidation)
-- [x] **T20** Phase 5.5 — Dockerfile
-- [x] **T21** Phase 5.6 — README.md
-- [x] **T22** Final build check + push all commits
-
-## Deferred (Requires User Input)
-
-- **Phase 0.3** — DNS delegation: requires Namecheap login (manual step)
-- **Phase 0.2 deployment** — `az deployment group create` requires `az login` session
-- **Phase 0.4 secrets** — GitHub repo secrets (AZURE_CREDENTIALS, DATABASE_URL, etc.)
-- **Phase 5.4** — Custom domain binding: requires deployed DNS zone + az login
-- **Prisma migrate** — Needs running PostgreSQL (user starts with `docker-compose up`)
-- **Prisma seed** — Needs running PostgreSQL + real credentials in .env
+- [x] **T1** 修复链接浮层“确定/取消”按钮换行（保持单行、紧凑布局）
+- [x] **T2** 优化图片/视频插入按钮视觉（保持现有主题 token，不引入新设计系统）
+- [x] **T3** 修复编辑页顶部“上次保存 xx:xx:xx”垂直未居中
+- [x] **T4** 支持可调表格行列（不再固定 3x3）
+- [x] **T5** 修复 YouTube “refused to connect” 根因（标准化 watch/share 链接为 embed 链接）
+- [x] **T6** 新增 Playwright 关键路径测试：
+  - 新建文章（标题、正文、标签）
+  - 保存草稿流
+  - 发布流
+  - 插入表格（非默认尺寸）
+  - 插入图片（上传行为由 Playwright route mock 覆盖）
+  - 插入视频（YouTube 链接规范化）
+- [x] **T7** 执行构建与测试校验（build + playwright）
+- [x] **T8** 原子提交并推送当前分支
 
 ## Hiccups & Notes
 
-- **Prisma 7 breaking change**: `url` property no longer allowed in `schema.prisma` datasource block. Moved to `prisma.config.ts`. PrismaClient constructor doesn't accept `datasourceUrl` either. Fixed with lazy Proxy initialization — PrismaClient only created on first property access, avoiding build-time DB connection attempts.
-- **Resend API key validation**: `new Resend()` throws at module load if API key is missing. Fixed with lazy factory function `getResend()`.
-- **Next.js 16 middleware deprecation**: Warning about "middleware" → "proxy" convention. Middleware still works but is deprecated. Low priority to migrate.
-- **Tailwind v4**: No `tailwind.config.ts` — all config in CSS via `@import "tailwindcss"` and `@theme inline` blocks.
-- **Static pre-rendering**: Server components using Prisma fail during `next build` without DB. Added `export const dynamic = "force-dynamic"` to all pages/routes that query the database.
-- **create-next-app interactive**: Prompt for React Compiler (`--turbopack` flag doesn't skip it). Piped `echo "n"` to bypass.
+- Playwright 初次执行误连到本机已有 `:3000` 服务（非本项目），已将默认 `PLAYWRIGHT_BASE_URL` 调整为 `http://127.0.0.1:3300`，并允许通过 env 覆盖。
+- 本机已有 `next dev` 占用 `.next/dev/lock`，验证阶段改为复用现有 `PLAYWRIGHT_BASE_URL=http://127.0.0.1:3210` 运行测试。
+- 本地种子管理员账号与默认值不同，执行时通过 `E2E_ADMIN_EMAIL` / `E2E_ADMIN_PASSWORD` 覆盖。
+- 图片上传在本地环境易受存储/处理链路影响，关键路径测试对 `/api/upload` 采用 route mock，聚焦验证编辑器插图行为与后续发布流程。
