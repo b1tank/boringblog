@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getIronSession } from "iron-session";
 import { cookies } from "next/headers";
 import { SessionData, sessionOptions } from "@/lib/auth";
+import { logger } from "@/lib/logger";
 import { prisma } from "@/lib/db";
 import { generateSlug } from "@/lib/utils";
 import { generateHTML } from "@tiptap/html";
@@ -185,7 +186,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json(post, { status: 201 });
   } catch (error) {
-    console.error("Create post error:", error);
+    logger.error("Create post error", { error: String(error) });
     return NextResponse.json({ error: "创建文章失败" }, { status: 500 });
   }
 }

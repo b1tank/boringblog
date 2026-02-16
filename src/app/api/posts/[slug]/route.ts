@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getIronSession } from "iron-session";
 import { cookies } from "next/headers";
 import { SessionData, sessionOptions } from "@/lib/auth";
+import { logger } from "@/lib/logger";
 import { prisma } from "@/lib/db";
 import { generateSlug } from "@/lib/utils";
 import { generateHTML } from "@tiptap/html";
@@ -155,7 +156,7 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
 
     return NextResponse.json(updated);
   } catch (error) {
-    console.error("Update post error:", error);
+    logger.error("Update post error", { error: String(error) });
     return NextResponse.json({ error: "更新文章失败" }, { status: 500 });
   }
 }

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getIronSession } from "iron-session";
 import { cookies } from "next/headers";
 import { SessionData, sessionOptions } from "@/lib/auth";
+import { logger } from "@/lib/logger";
 import sharp from "sharp";
 import crypto from "crypto";
 import { uploadImage } from "@/lib/storage";
@@ -64,7 +65,7 @@ export async function POST(request: NextRequest) {
     const url = `/uploads/${fileName}`;
     return NextResponse.json({ url });
   } catch (error) {
-    console.error("Upload error:", error);
+    logger.error("Upload error", { error: String(error) });
     return NextResponse.json({ error: "上传失败" }, { status: 500 });
   }
 }
