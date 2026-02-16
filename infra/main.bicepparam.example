@@ -15,3 +15,6 @@ param storageAccountName = 'boringblogimages'
 
 // Public URL of the deployed site
 param siteUrl = 'https://yourdomain.com'
+
+// Email address for Azure Monitor alert notifications
+param alertEmail = 'your-email@example.com'

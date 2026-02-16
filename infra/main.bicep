@@ -28,6 +28,9 @@ param location string = resourceGroup().location
 @description('Location for PostgreSQL Flexible Server (some regions have restrictions)')
 param postgresLocation string = 'westus3'
 
+@description('Email address for alert notifications')
+param alertEmail string
+
 // ─── Modules ────────────────────────────────────────────────────────────────
 
 module identity 'modules/identity.bicep' = {
@@ -108,6 +111,15 @@ module grafana 'modules/grafana.bicep' = {
     location: location
     appInsightsId: appInsights.outputs.id
     logAnalyticsWorkspaceId: appInsights.outputs.logAnalyticsWorkspaceId
+  }
+}
+
+module alerts 'modules/alerts.bicep' = {
+  name: 'alerts'
+  params: {
+    location: location
+    alertEmail: alertEmail
+    appInsightsId: appInsights.outputs.id
   }
 }
 
