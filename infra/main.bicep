@@ -102,6 +102,15 @@ module appInsights 'modules/appinsights.bicep' = {
   }
 }
 
+module grafana 'modules/grafana.bicep' = {
+  name: 'grafana'
+  params: {
+    location: location
+    appInsightsId: appInsights.outputs.id
+    logAnalyticsWorkspaceId: appInsights.outputs.logAnalyticsWorkspaceId
+  }
+}
+
 // ─── DNS ────────────────────────────────────────────────────────────────────
 // Uncomment after first deployment to configure custom domain:
 //
@@ -137,3 +146,6 @@ output appInsightsConnectionString string = appInsights.outputs.connectionString
 
 @description('Application Insights instrumentation key')
 output appInsightsInstrumentationKey string = appInsights.outputs.instrumentationKey
+
+@description('Grafana dashboard URL')
+output grafanaEndpoint string = grafana.outputs.endpoint
