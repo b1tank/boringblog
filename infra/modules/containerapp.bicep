@@ -168,6 +168,27 @@ resource containerApp 'Microsoft.App/containerApps@2024-03-01' = {
               value: '3000'
             }
           ]
+          probes: [
+            {
+              type: 'startup'
+              httpGet: {
+                path: '/api/health'
+                port: 3000
+              }
+              initialDelaySeconds: 5
+              periodSeconds: 10
+              failureThreshold: 10
+            }
+            {
+              type: 'liveness'
+              httpGet: {
+                path: '/api/health'
+                port: 3000
+              }
+              periodSeconds: 30
+              failureThreshold: 3
+            }
+          ]
         }
       ]
       scale: {
