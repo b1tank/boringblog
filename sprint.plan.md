@@ -2,28 +2,28 @@
 
 ## Sprint Scope
 
-修复编辑器核心交互问题（链接输入框换行、媒体按钮样式、保存时间对齐、表格尺寸可调、YouTube 嵌入可用性），并补充关键路径 Playwright 自动化测试（非琐碎用例）。
+Fix core editor interaction issues (link input wrapping, media button styling, save-time alignment, configurable table size, and YouTube embed reliability), and add critical-path Playwright automation coverage (non-trivial cases).
 
 ## Prioritized Task List
 
-- [x] **T1** 修复链接浮层“确定/取消”按钮换行（保持单行、紧凑布局）
-- [x] **T2** 优化图片/视频插入按钮视觉（保持现有主题 token，不引入新设计系统）
-- [x] **T3** 修复编辑页顶部“上次保存 xx:xx:xx”垂直未居中
-- [x] **T4** 支持可调表格行列（不再固定 3x3）
-- [x] **T5** 修复 YouTube “refused to connect” 根因（标准化 watch/share 链接为 embed 链接）
-- [x] **T6** 新增 Playwright 关键路径测试：
-  - 新建文章（标题、正文、标签）
-  - 保存草稿流
-  - 发布流
-  - 插入表格（非默认尺寸）
-  - 插入图片（上传行为由 Playwright route mock 覆盖）
-  - 插入视频（YouTube 链接规范化）
-- [x] **T7** 执行构建与测试校验（build + playwright）
-- [x] **T8** 原子提交并推送当前分支
+- [x] **T1** Fix wrapping for “Confirm/Cancel” buttons in the link bubble (single-line compact layout)
+- [x] **T2** Improve visual style of image/video insert buttons (use existing theme tokens, no new design system)
+- [x] **T3** Fix vertical alignment of “Last saved xx:xx:xx” in editor header
+- [x] **T4** Support configurable table rows/columns (not fixed at 3x3)
+- [x] **T5** Fix root cause of YouTube “refused to connect” (normalize watch/share URLs to embed URLs)
+- [x] **T6** Add critical-path Playwright tests:
+  - Create a new article (title, body, tags)
+  - Save draft flow
+  - Publish flow
+  - Insert table (non-default size)
+  - Insert image (upload behavior covered with Playwright route mock)
+  - Insert video (YouTube URL normalization)
+- [x] **T7** Run build and test validation (build + Playwright)
+- [x] **T8** Commit atomically and push current branch
 
 ## Hiccups & Notes
 
-- Playwright 初次执行误连到本机已有 `:3000` 服务（非本项目），已将默认 `PLAYWRIGHT_BASE_URL` 调整为 `http://127.0.0.1:3300`，并允许通过 env 覆盖。
-- 本机已有 `next dev` 占用 `.next/dev/lock`，验证阶段改为复用现有 `PLAYWRIGHT_BASE_URL=http://127.0.0.1:3210` 运行测试。
-- 本地种子管理员账号与默认值不同，执行时通过 `E2E_ADMIN_EMAIL` / `E2E_ADMIN_PASSWORD` 覆盖。
-- 图片上传在本地环境易受存储/处理链路影响，关键路径测试对 `/api/upload` 采用 route mock，聚焦验证编辑器插图行为与后续发布流程。
+- Initial Playwright runs connected to an existing local service on `:3000` (not this project). Default `PLAYWRIGHT_BASE_URL` was changed to `http://127.0.0.1:3300`, with env override support.
+- An existing `next dev` process held `.next/dev/lock`; during validation, tests were run against the active server via `PLAYWRIGHT_BASE_URL=http://127.0.0.1:3210`.
+- Local seeded admin credentials differed from defaults; execution used `E2E_ADMIN_EMAIL` / `E2E_ADMIN_PASSWORD` overrides.
+- Image upload behavior can vary by local storage/processing chain; critical-path tests mock `/api/upload` to keep coverage focused on editor image insertion and downstream publish flow.
