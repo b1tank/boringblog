@@ -26,6 +26,10 @@ resource blobService 'Microsoft.Storage/storageAccounts/blobServices@2023-05-01'
   parent: storageAccount
   name: 'default'
   properties: {
+    deleteRetentionPolicy: {
+      enabled: true
+      days: 7
+    }
     cors: {
       corsRules: [
         {
