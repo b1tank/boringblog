@@ -73,3 +73,52 @@ jobs:
             --resource-group ${{ secrets.AZURE_RESOURCE_GROUP }} \
             --name main \
             --query properties.outputs
+
+      - name: Configure custom domains
+        if: inputs.action == 'deploy' && vars.DOMAIN_NAME != ''
+        run: |
+          DOMAIN="${{ vars.DOMAIN_NAME }}"
+          RG="${{ secrets.AZURE_RESOURCE_GROUP }}"
+          APP="boringblog-app"
+          ENV="boringblog-env"
+
+          # Check if custom domains are already bound
+          EXISTING=$(az containerapp hostname list --name $APP --resource-group $RG -o tsv 2>/dev/null | wc -l)
+          if [ "$EXISTING" -ge 2 ]; then
+            echo "Custom domains already configured, skipping."
+            exit 0
+          fi
+
+          echo "=== Step 1: Add hostnames without cert binding ==="
+          az containerapp hostname add --name $APP --resource-group $RG --hostname "$DOMAIN" 2>/dev/null || true
+          az containerapp hostname add --name $APP --resource-group $RG --hostname "www.$DOMAIN" 2>/dev/null || true
+
+          echo "=== Step 2: Create managed certificates ==="
+          az containerapp env certificate create \
+            --name $ENV --resource-group $RG \
+            --hostname "$DOMAIN" --validation-method HTTP 2>/dev/null || true
+          az containerapp env certificate create \
+            --name $ENV --resource-group $RG \
+            --hostname "www.$DOMAIN" --validation-method CNAME 2>/dev/null || true
+
+          echo "=== Step 3: Bind certificates to hostnames ==="
+          # Find the cert IDs
+          APEX_CERT=$(az containerapp env certificate list --name $ENV --resource-group $RG \
+            --query "[?properties.subjectName=='$DOMAIN' && properties.provisioningState=='Succeeded'].id" -o tsv | head -1)
+          WWW_CERT=$(az containerapp env certificate list --name $ENV --resource-group $RG \
+            --query "[?properties.subjectName=='www.$DOMAIN' && properties.provisioningState=='Succeeded'].id" -o tsv | head -1)
+
+          if [ -n "$APEX_CERT" ]; then
+            az containerapp hostname bind --name $APP --resource-group $RG --hostname "$DOMAIN" --certificate "$APEX_CERT" || true
+          else
+            echo "Warning: Apex cert not yet ready, bind manually later"
+          fi
+
+          if [ -n "$WWW_CERT" ]; then
+            az containerapp hostname bind --name $APP --resource-group $RG --hostname "www.$DOMAIN" --certificate "$WWW_CERT" || true
+          else
+            echo "Warning: WWW cert not yet ready, bind manually later"
+          fi
+
+          echo "=== Done ==="
+          az containerapp hostname list --name $APP --resource-group $RG -o table

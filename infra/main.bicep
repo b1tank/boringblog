@@ -2,8 +2,11 @@ targetScope = 'resourceGroup'
 
 // ─── Parameters ─────────────────────────────────────────────────────────────
 
+// domainName is not consumed by Bicep modules — custom domain setup is handled
+// by the post-deploy CLI step in infra.yml. Kept as param for .bicepparam compat.
 @description('Custom domain name for the blog')
-param domainName string
+#disable-next-line no-unused-params
+param domainName string = ''
 
 @description('PostgreSQL administrator login name')
 param postgresAdminLogin string
@@ -91,7 +94,6 @@ module containerApp 'modules/containerapp.bicep' = {
     appInsightsConnectionString: appInsights.outputs.connectionString
     logAnalyticsCustomerId: appInsights.outputs.logAnalyticsCustomerId
     logAnalyticsSharedKey: appInsights.outputs.logAnalyticsSharedKey
-    domainName: domainName
   }
 }
 
