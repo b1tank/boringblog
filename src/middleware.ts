@@ -5,8 +5,33 @@ import { SessionData } from "@/lib/auth";
 const protectedRoutes = ["/write", "/edit", "/drafts", "/settings"];
 const adminOnlyRoutes = ["/settings"];
 
+// Bot probe paths that will never be served by this app — return 403 immediately
+const botPrefixes = [
+  "/wp-admin",
+  "/wp-login",
+  "/wp-includes",
+  "/wordpress",
+  "/xmlrpc.php",
+  "/phpmyadmin",
+  "/cgi-bin",
+  "/vendor",
+  "/admin",
+  "/.env",
+  "/.git",
+  "/.aws",
+  "/config.php",
+];
+
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
+
+  // Block known bot probe paths
+  const isBot = botPrefixes.some(
+    (prefix) => pathname === prefix || pathname.startsWith(prefix + "/")
+  );
+  if (isBot) {
+    return new NextResponse(null, { status: 403 });
+  }
 
   // Check if the route needs protection
   const isProtected = protectedRoutes.some(
@@ -54,5 +79,25 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/write", "/edit/:path*", "/drafts", "/settings"],
+  matcher: [
+    // Auth-protected routes
+    "/write",
+    "/edit/:path*",
+    "/drafts",
+    "/settings",
+    // Bot blocklist
+    "/wp-admin/:path*",
+    "/wp-login.php",
+    "/wp-includes/:path*",
+    "/wordpress/:path*",
+    "/xmlrpc.php",
+    "/phpmyadmin/:path*",
+    "/cgi-bin/:path*",
+    "/vendor/:path*",
+    "/admin/:path*",
+    "/.env",
+    "/.git/:path*",
+    "/.aws/:path*",
+    "/config.php",
+  ],
 };
