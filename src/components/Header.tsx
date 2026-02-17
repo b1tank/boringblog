@@ -48,7 +48,7 @@ export function Header() {
 
   return (
     <header className="border-b border-border bg-card/80 backdrop-blur-sm sticky top-0 z-50">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 flex items-center justify-between h-16">
+      <div className="max-w-6xl w-full mx-auto px-4 sm:px-6 flex items-center justify-between h-16">
         {/* Logo + Title */}
         <Link href="/" className="flex items-center gap-2 text-xl font-bold text-foreground hover:text-accent transition-colors">
           {/* eslint-disable-next-line @next/next/no-img-element */}

@@ -56,7 +56,7 @@ export default function RootLayout({
       <body className={`${notoSerifSC.variable} font-serif antialiased bg-background text-foreground min-h-screen flex flex-col`}>
         <ThemeProvider>
           <Header />
-          <main className="max-w-6xl mx-auto px-4 sm:px-6 py-8 flex-1">
+          <main className="max-w-6xl w-full mx-auto px-4 sm:px-6 py-8 flex-1">
             {children}
           </main>
           <Footer />

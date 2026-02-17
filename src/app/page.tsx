@@ -120,7 +120,7 @@ export default async function Home({
 
       {/* Right column: tag sidebar */}
       {tagsWithCounts.length > 0 && (
-        <aside className="lg:w-64 shrink-0">
+        <aside className="lg:w-[25%] shrink-0">
           <div className="lg:sticky lg:top-20">
             <h3 className="text-sm font-semibold text-muted mb-3">标签</h3>
             <div className="flex flex-wrap gap-2">
