@@ -49,8 +49,10 @@ export function Header() {
   return (
     <header className="border-b border-border bg-card/80 backdrop-blur-sm sticky top-0 z-50">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 flex items-center justify-between h-16">
-        {/* Title */}
-        <Link href="/" className="text-xl font-bold text-foreground hover:text-accent transition-colors">
+        {/* Logo + Title */}
+        <Link href="/" className="flex items-center gap-2 text-xl font-bold text-foreground hover:text-accent transition-colors">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/favicon.svg" alt="" className="w-7 h-7" aria-hidden="true" />
           乐之翁
         </Link>
 
