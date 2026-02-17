@@ -56,12 +56,14 @@ resource appDownAlert 'Microsoft.Insights/metricAlerts@2018-03-01' = {
   }
 }
 
-// Alert 2: High error rate — >5% server errors over 5 minutes
+// Alert 2: Server errors — >5 5xx responses over 5 minutes
+// Note: uses requests/count with resultCode 5xx filter, NOT requests/failed
+// (requests/failed includes 404s which are normal on a public site due to bots)
 resource highErrorRateAlert 'Microsoft.Insights/metricAlerts@2018-03-01' = {
   name: 'boringblog-high-error-rate'
   location: 'global'
   properties: {
-    description: 'Server error rate exceeds 5% over 5 minutes'
+    description: 'More than 5 server errors (5xx) in 5 minutes'
     severity: 1 // Error
     enabled: true
     scopes: [
@@ -73,13 +75,25 @@ resource highErrorRateAlert 'Microsoft.Insights/metricAlerts@2018-03-01' = {
       'odata.type': 'Microsoft.Azure.Monitor.SingleResourceMultipleMetricCriteria'
       allOf: [
         {
-          name: 'high-5xx-rate'
-          metricName: 'requests/failed'
+          name: 'high-5xx-count'
+          metricName: 'requests/count'
           metricNamespace: 'microsoft.insights/components'
           operator: 'GreaterThan'
           threshold: 5
           timeAggregation: 'Count'
           criterionType: 'StaticThresholdCriterion'
+          dimensions: [
+            {
+              name: 'request/resultCode'
+              operator: 'Include'
+              values: [
+                '500'
+                '502'
+                '503'
+                '504'
+              ]
+            }
+          ]
         }
       ]
     }

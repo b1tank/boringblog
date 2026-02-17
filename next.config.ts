@@ -3,6 +3,7 @@ import type { NextConfig } from "next";
 const useStandaloneOutput = process.env.NEXT_BUILD_STANDALONE === "true";
 
 const nextConfig: NextConfig = {
+  productionBrowserSourceMaps: false,
   images: {
     remotePatterns: [
       {
