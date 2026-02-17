@@ -103,6 +103,7 @@ export default async function PostPage({ params }: Props) {
     (session.role === "ADMIN" || session.userId === post.authorId);
 
   return (
+    <div className="max-w-4xl mx-auto">
     <div className="flex gap-10">
       {/* Main content */}
       <article className="flex-1 min-w-0">
@@ -164,6 +165,7 @@ export default async function PostPage({ params }: Props) {
       <aside className="hidden lg:block w-56 shrink-0">
         <TableOfContents html={processedHtml} />
       </aside>
+    </div>
     </div>
   );
 }
