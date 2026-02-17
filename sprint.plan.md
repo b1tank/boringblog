@@ -1,158 +1,204 @@
-# Sprint Plan — Launch Readiness (lezhiweng.com)
+# Sprint Plan — UI & UX Overhaul (lezhiweng.com)
 
 ## Sprint Goal
 
-Make the production stack reliable, observable, and operable before dad starts relying on it daily. No product feature work — pure operational hardening.
-
-## Pre-Conditions (already done)
-
-- [x] Custom domain (lezhiweng.com) + HTTPS via ACA managed cert
-- [x] Dad onboarded — password reset, logged in, creating articles
-- [x] `minReplicas: 1` set manually in Azure portal
+Redesign the homepage into a content-rich 2-column layout, add an About page, clean up author visibility rules, improve post card presentation, and add several quality-of-life enhancements for both readers and admin.
 
 ---
 
-## Prioritized Task List
+## User-Requested Tasks
 
-### P0 — Deploy Safety
+### T1 — 关于 (About) Page + Nav Link
 
-- [x] **T1** Sync Bicep: set `minReplicas: 1` in `infra/modules/containerapp.bicep`
-  - Prevents next `infra.yml` run from reverting to 0 and causing cold-start surprise
-  - 1-line change
+- Create `/about` page (`src/app/about/page.tsx`) with static "关于本站" content
+  - Content: brief intro about the blog, its purpose, and the author(s)
+  - Styled consistently with the existing layout
+- Add "关于" link in Header nav (desktop + mobile) — visible to all visitors, no auth required
+- **Current state**: No about page or nav link exists
 
-- [x] **T2** Fix CI migration ordering in `.github/workflows/deploy.yml`
-  - Current: deploy new image → run migrations (risky: new code hits old schema)
-  - Target: run migrations → deploy new image
-  - Also: ensure migration failure blocks the deploy (don't push broken image to live)
+### T2 — Hide Admin's Posts from Public
 
-### P1 — Health & Probes
+- **Purpose**: Testing convenience — admin's published posts should only be visible when logged in as admin
+- Modify post listing queries to filter out posts where `author.role === 'ADMIN'`:
+  - `src/app/page.tsx` — homepage listing
+  - `src/app/api/posts/route.ts` — public GET (add `author: { role: { not: 'ADMIN' } }` unless requester is admin)
+  - `src/app/tags/[tag]/page.tsx` — tag-filtered listing
+  - `src/app/author/[name]/page.tsx` — author page
+  - `src/app/feed.xml/route.ts` — RSS feed
+  - `src/app/sitemap.xml/route.ts` — sitemap
+- When admin is logged in, all posts (including admin's own) are shown normally
+- Requires reading session in previously-public server components (homepage, tag page) to detect admin
+- **Approach**: helper function `isAdminSession()` to DRY the session check across pages
 
-- [x] **T3** Add `/api/health` endpoint
-  - Returns `200 { status: 'ok', db: 'connected' }` when healthy
-  - Checks: DB reachable (`SELECT 1`), app running
-  - Lightweight — no auth required
+### T3 — 2-Column Homepage Layout with Tag Sidebar
 
-- [x] **T4** Configure Container App health probes in Bicep
-  - Liveness probe: `GET /api/health` every 30s
-  - Startup probe: `GET /api/health` with longer `initialDelaySeconds` (Next.js cold boot)
-  - Without probes, Azure keeps routing to a crashed container
+- Restructure `src/app/page.tsx` into 2-column layout:
+  - **Left column (~75%)**: Article list, left-aligned
+  - **Right column (~25%)**: Tag cloud with post counts as badge labels
+- Tag sidebar:
+  - Fetch all tags with `_count` of published posts
+  - Render as clickable badge labels (tag name + count), e.g. `散文 (12)`
+  - Clicking a tag filters the article list (via query param `?tag=xxx` on the same homepage)
+  - Active tag is visually highlighted
+  - "全部" (All) link to clear the filter
+- On mobile: tag sidebar collapses below the article list (stacked layout)
 
-### P1 — Observability
+### T4 — Pagination for All List Views
 
-- [x] **T5** Add OpenTelemetry instrumentation to Next.js
-  - Installed `@azure/monitor-opentelemetry` + OTel SDK (not `@vercel/otel` — Azure distro gives auto-instrumentation for HTTP, pg, Azure SDK)
-  - Created `src/instrumentation.ts` → `src/instrumentation.node.ts` with `useAzureMonitor()`
-  - Created `src/lib/logger.ts` structured JSON logger
-  - Replaced `console.error` in API routes with structured logger
-  - Telemetry gracefully disabled when `APPLICATIONINSIGHTS_CONNECTION_STRING` not set
-  - Key signals:
-    - **Traces**: request lifecycle across API routes, DB calls, blob storage calls (auto-instrumented)
-    - **Metrics**: request count, latency (p50/p95/p99), error rate (auto via Azure Monitor)
-    - **Logs**: structured JSON to stdout with severity levels
+- **Homepage** (`src/app/page.tsx`): already has pagination — ensure it works with tag filter (`?tag=xxx&page=2`)
+- **Tag page** (`src/app/tags/[tag]/page.tsx`): currently loads all posts with no pagination — add `PAGE_SIZE=20` + page controls
+- **Author page** (`src/app/author/[name]/page.tsx`): currently loads all posts — add pagination
+- Pagination component: extract a shared `<Pagination>` component to avoid duplicating nav markup
 
-- [x] **T6** Add Application Insights resource to Bicep
-  - New module `modules/appinsights.bicep`: Log Analytics workspace + Application Insights
-  - Refactored: extracted Log Analytics from containerapp.bicep to avoid circular deps
-  - Wire connection string into Container App env vars
+### T5 — Improved PostCard Layout with Cover Image
 
-- [x] **T7** Set up Azure Managed Grafana (Bicep)
-  - New module `modules/grafana.bicep`: Grafana Standard SKU + system-assigned managed identity
-  - Monitoring Reader role assigned for App Insights / Log Analytics access
-  - Custom dashboards deferred to post-deploy; App Insights portal suffices initially
+- Redesign `PostCard` for a more magazine-style presentation:
+  - Cover image on the left or top (responsive), nicely sized (not stretching full width on desktop)
+  - Title prominent, date/time, tags, and excerpt all visible in the card
+  - Horizontal card layout on desktop (image left, text right); vertical stack on mobile
+- Tags should be clearly visible in each card (already present — ensure they're not lost in redesign)
+- Excerpt should be meaningful (already using `extractExcerpt`)
 
-### P1 — Alerting
+### T6 — Conditional Author Name in Post List
 
-- [x] **T8** Configure Azure Monitor alerts
-  - New module `modules/alerts.bicep`: action group + 3 metric alert rules
-  - Alert 1: **App down** — 0 requests for 5 min (severity 0 / critical) → email
-  - Alert 2: **High error rate** — >5 failed requests in 5 min (severity 1 / error) → email
-  - Alert 3: **Slow response** — avg >5s over 15 min (severity 2 / warning) → email
-  - Added `alertEmail` param to main.bicep and .bicepparam.example
+- **Public visitors and non-admin logged-in users**: Author name is hidden in post list cards
+- **Admin logged in**: Author name appears before the datetime in the metadata row
+- Requires passing `isAdmin` flag from the page to `PostCard`
+- Adjust `PostCard` props to accept `showAuthor?: boolean`
 
-### P2 — Data Safety
+### T7 — Delete Post Confirmation
 
-- [ ] **T9** Verify PostgreSQL automated backups *(requires manual Azure portal action)*
-  - Confirm retention period (7 days minimum) in Bicep params or Azure portal
-  - Perform one test point-in-time restore to a throwaway server
-  - Document restore procedure in a runbook (even a few lines in README)
-  - A backup you've never tested is not a backup
+- **Drafts page** (`src/app/drafts/page.tsx`): Already has `confirm()` before delete ✅
+- **Edit page** (`src/app/edit/[slug]/page.tsx`): No delete button exists — add a "删除文章" button in the sidebar with `confirm()` dialog
+- Use a styled confirmation modal instead of browser `confirm()` (optional enhancement)
+- After deletion, redirect to `/drafts` (if was draft) or `/` (if was published)
 
-- [x] **T10** Enable blob soft-delete on storage account
-  - Added `deleteRetentionPolicy` to `infra/modules/storage.bicep` (7-day soft delete)
-  - Protects against accidental image deletion
+### T8 — Logo Next to Site Title
 
-### P2 — Security Headers
-
-- [x] **T11** Add security headers in `next.config.ts`
-  - `X-Frame-Options: DENY`
-  - `X-Content-Type-Options: nosniff`
-  - `Strict-Transport-Security: max-age=31536000; includeSubDomains`
-  - `Referrer-Policy: strict-origin-when-cross-origin`
-
-### P3 — Operational Runbook
-
-- [x] **T12** Document operational procedures in `docs/ops.md`
-  - Rollback a deploy, check container logs, restore DB from backup
-  - Reset a user's password, recover deleted images (soft-delete)
-  - Secrets rotation procedures
-  - Alert response playbook
+- Show the favicon SVG (`/favicon.svg` — the 不倒翁 with douli hat) as a small logo to the left of "乐之翁" in the Header
+- Size: ~28-32px, inline with the title text
+- Works in both light and dark themes
+- Update both desktop and mobile header
 
 ---
 
-## Execution Order & Dependencies
+## Recommended Enhancements
+
+Based on the above feedback and codebase review, these additions complement the requested changes:
+
+### T9 — Shared Pagination Component
+
+- Extract pagination markup into `src/components/Pagination.tsx`
+- Props: `currentPage`, `totalPages`, `buildHref(page: number) => string`
+- Reuse across homepage, tag page, author page
+- Shows page numbers (1, 2, 3 ... N) instead of just prev/next for better UX
+
+### T10 — Reading Time on Post Cards
+
+- Display estimated reading time (e.g. "3 分钟") on each PostCard
+- Already computed on post detail page via `calculateReadingTime` — reuse in list views
+- Adds useful context for readers deciding what to read
+
+### T11 — Delete Button on Edit Page for Published Posts
+
+- Currently published posts can only be unpublished, not deleted from the editor
+- Add a danger-zone "删除文章" button at the bottom of the edit sidebar
+- Includes confirmation modal with post title
+- Redirect to homepage after deletion
+
+### T12 — Sticky Tag Sidebar
+
+- Make the right-column tag sidebar `sticky` so it stays visible while scrolling through long article lists
+- Use `position: sticky; top: 5rem` (below the fixed header)
+
+### T13 — Active Tag Highlighting in Sidebar + Tag Page Backlink
+
+- When a tag is selected (filtered), highlight it in the sidebar
+- Add a "查看全部标签文章 →" link on the filtered view that goes to the full `/tags/[tag]` page
+
+### T14 — Empty States & Loading Skeletons
+
+- Add skeleton loading states for the homepage article list and tag sidebar
+- Better empty states when no posts match a tag filter on the homepage
+- Consistent "暂无文章" messaging across all list views
+
+### T15 — Widen Max Content Width for 2-Column Layout
+
+- Current `max-w-4xl` (56rem / 896px) is tight for a 2-column layout
+- Widen the main content area to `max-w-6xl` (72rem / 1152px) on the homepage only, or globally
+- Keep article detail pages at `max-w-4xl` with TOC sidebar for comfortable reading
+
+### T16 — About Page Content Management
+
+- Initially: hardcoded static content in the about page (ship fast)
+- Future: consider making it editable by admin via a special "page" content type
+- For now, add a note in the code for future extensibility
+
+---
+
+## Implementation Order & Dependencies
 
 ```
-T1 (Bicep minReplicas) ─┐
-T2 (CI migration order) ─┤
-T11 (Security headers)  ─┤─── Independent, can parallelize
-T10 (Blob soft-delete)  ─┘
+T8  (Logo in header)          ─┐
+T1  (About page + nav)        ─┤── Independent, quick wins
+T7  (Delete confirmation)     ─┘
 
-T3 (Health endpoint) → T4 (Container probes in Bicep)
+T15 (Widen max-width)         ─── Prerequisite for T3
 
-T5 (OTel instrumentation) → T6 (App Insights Bicep) → T7 (Grafana)
-                                                     → T8 (Alerts)
+T9  (Pagination component)    ─── Prerequisite for T3, T4
 
-T9 (Verify DB backups) — standalone, manual procedure
-T12 (Runbook) — accumulates throughout sprint
+T2  (Hide admin posts)        ─── Requires session helper; touches many files
+T6  (Conditional author name) ─── Depends on T2 (same session-detection pattern)
+
+T3  (2-column layout + tags)  ─── Core layout change; depends on T9, T15
+T4  (Pagination everywhere)   ─── Depends on T9; touches tag page, author page
+
+T5  (PostCard redesign)       ─── Can be done independently, but best after T3 layout is in place
+T10 (Reading time on cards)   ─── Small add-on to T5
+
+T11 (Delete on edit page)     ─── Extension of T7
+T12 (Sticky sidebar)          ─── After T3
+T13 (Active tag highlighting) ─── After T3
+T14 (Empty states/skeletons)  ─── After T3, T4
+T16 (About page notes)        ─── Part of T1
 ```
 
-## Suggested Implementation Batches
+## Suggested Batches
 
 | Batch | Tasks | Est. Effort | Notes |
 |-------|-------|-------------|-------|
-| **Batch 1** | T1, T2, T10, T11 | 1h | Quick wins, all independent |
-| **Batch 2** | T3, T4 | 1h | Health endpoint + probes |
-| **Batch 3** | T5, T6 | 3-4h | Core observability (biggest chunk) |
-| **Batch 4** | T7, T8 | 2h | Grafana + alerts (build on Batch 3) |
-| **Batch 5** | T9, T12 | 1h | Manual verification + documentation |
+| **Batch 1** | T8, T1, T7, T11 | 1.5h | Quick wins: logo, about page, delete confirmations |
+| **Batch 2** | T15, T9 | 1h | Layout prep: widen container, shared pagination |
+| **Batch 3** | T2, T6 | 2h | Session-aware filtering (admin posts, author name) |
+| **Batch 4** | T3, T12, T13 | 3h | Core 2-column layout with tag sidebar |
+| **Batch 5** | T4 | 1h | Pagination on tag page + author page |
+| **Batch 6** | T5, T10 | 2h | PostCard redesign with reading time |
+| **Batch 7** | T14, T16 | 1h | Polish: skeletons, empty states, about page notes |
 
-**Total estimate: ~8-10 hours**
+**Total estimate: ~11-12 hours**
+
+---
 
 ## Success Criteria
 
-- `GET https://lezhiweng.com/api/health` returns 200
-- Container App has liveness + startup probes configured
-- Application Insights shows traces for page loads and API calls
-- At least 2 alerts fire correctly (test with a synthetic failure)
-- Blob soft-delete enabled (verify with test delete + undelete)
-- DB backup restore tested at least once
-- Security headers present (verify with `curl -I`)
-- All Bicep changes are committed (no portal-only drift)
-- Runbook exists with rollback + restore procedures
+- [ ] "关于" page accessible at `/about`, linked in nav for all visitors
+- [ ] Admin's published posts invisible to public & non-admin users on all list views + RSS + sitemap
+- [ ] Homepage shows 2-column layout: articles left, tag sidebar right (responsive)
+- [ ] Clicking a tag in sidebar filters the article list; pagination works with filters
+- [ ] Tag page (`/tags/[tag]`) and author page (`/author/[name]`) have pagination
+- [ ] PostCard shows cover image, title, datetime, tags, and excerpt in a clean layout
+- [ ] Author name hidden in list view unless admin is logged in
+- [ ] Delete button with confirmation on edit page (both drafts and published posts)
+- [ ] Favicon SVG logo displayed next to "乐之翁" in header
+- [ ] All pages render correctly in both light/dark themes and on mobile
+- [ ] `npm run build` passes, `npm run lint` clean
 
 ## Out of Scope
 
-- Product features (editor improvements, comments, search)
-- Performance optimization (ISR tuning, CDN)
-- Custom Grafana dashboards beyond starter set
-- Multi-region / HA (overkill for family blog)
-- Uptime SLA commitments
-
-## Hiccups & Notes
-
-- **Log Analytics refactor**: The Log Analytics workspace was originally created inside `containerapp.bicep`. To avoid circular dependency (container app needs App Insights connection string, App Insights needs Log Analytics workspace), moved workspace creation into `appinsights.bicep` and passed workspace customer ID + shared key to container app as params.
-- **OTel package choice**: Chose `@azure/monitor-opentelemetry` (Azure distro) over `@vercel/otel` — the Azure distro auto-instruments `pg` (Prisma queries), `@azure/storage-blob`, and `@azure/communication-email` out of the box, which the Vercel package doesn't.
-- **T9 (DB backup verification)**: Requires manual Azure portal action — cannot be automated in this sprint. Documented restore procedure in `docs/ops.md`.
-- **Build**: Passed successfully with Next.js 16.1.6 (Turbopack). Compiled in 3.2 min.
-- **Infra deploy wiped custom domain bindings**: The Bicep deploy reset the Container App to its Bicep-declared state, which didn't include `customDomains` (they were configured via portal). The managed certs survived but had to be re-bound via `az containerapp hostname bind`. **Fixed**: Added managed certificate resources + customDomains config to `containerapp.bicep` (conditional on `domainName` param).
-- **Empty commit didn't trigger deploy.yml**: `paths-ignore: ['*.md']` filters out commits with no matching file changes. After infra reset the container image, had to manually redeploy via `az containerapp update --image <sha>`.
+- Full-text search (future sprint)
+- Comments system
+- Social share buttons
+- Related posts suggestions
+- Custom Grafana dashboards
+- Multi-region / CDN optimization
+- Making the About page admin-editable (noted for future)
