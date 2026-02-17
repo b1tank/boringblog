@@ -38,6 +38,7 @@ export default function EditPage({
   const [published, setPublished] = useState(false);
   const [pinned, setPinned] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [deleting, setDeleting] = useState(false);
   const [user, setUser] = useState<UserInfo | null>(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [lastSaved, setLastSaved] = useState<Date | null>(null);
@@ -139,6 +140,24 @@ export default function EditPage({
       if (autoSaveTimer.current) clearTimeout(autoSaveTimer.current);
     };
   }, [title, content, tags, coverImage, slug, pinned, published, loading, save]);
+
+  const handleDelete = async () => {
+    if (!confirm(`确定删除「${title || '无标题'}」吗？此操作不可撤销。`)) return;
+    setDeleting(true);
+    try {
+      const res = await fetch(`/api/posts/${currentSlugRef.current}`, { method: "DELETE" });
+      if (res.ok) {
+        router.push(published ? "/" : "/drafts");
+      } else {
+        const data = await res.json();
+        alert(data.error || "删除失败");
+      }
+    } catch {
+      alert("删除失败");
+    } finally {
+      setDeleting(false);
+    }
+  };
 
   const handleTagKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if ((e.key === "Enter" || e.key === ",") && tagInput.trim()) {
@@ -361,6 +380,18 @@ export default function EditPage({
               </button>
             </div>
           )}
+
+          {/* Delete post */}
+          <div className="pt-4 border-t border-border">
+            <button
+              onClick={handleDelete}
+              disabled={deleting}
+              className="w-full px-3 py-2 text-sm rounded border border-red-300 dark:border-red-800 text-red-500 hover:bg-red-50 dark:hover:bg-red-950 transition-colors disabled:opacity-50 cursor-pointer"
+            >
+              {deleting ? "删除中..." : "删除文章"}
+            </button>
+            <p className="mt-1.5 text-xs text-muted">删除后不可恢复，请谨慎操作。</p>
+          </div>
         </div>
       </div>
     </div>
