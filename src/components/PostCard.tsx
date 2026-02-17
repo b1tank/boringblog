@@ -14,6 +14,7 @@ interface PostCardProps {
     author: { name: string };
     tags: { id: string; name: string; slug: string }[];
   };
+  showAuthor?: boolean;
 }
 
 function formatDate(date: Date | null): string {
@@ -25,7 +26,7 @@ function formatDate(date: Date | null): string {
   }).format(new Date(date));
 }
 
-export function PostCard({ post }: PostCardProps) {
+export function PostCard({ post, showAuthor = false }: PostCardProps) {
   const excerpt = extractExcerpt(post.contentHtml, 150);
 
   return (
@@ -52,19 +53,21 @@ export function PostCard({ post }: PostCardProps) {
       </Link>
 
       <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-2 text-sm text-muted">
-        <Link
-          href={`/author/${encodeURIComponent(post.author.name)}`}
-          className="hover:text-foreground transition-colors"
-        >
-          {post.author.name}
-        </Link>
-        {post.publishedAt && (
+        {showAuthor && (
           <>
-            <span>·</span>
-            <time dateTime={new Date(post.publishedAt).toISOString()}>
-              {formatDate(post.publishedAt)}
-            </time>
+            <Link
+              href={`/author/${encodeURIComponent(post.author.name)}`}
+              className="hover:text-foreground transition-colors"
+            >
+              {post.author.name}
+            </Link>
+            {post.publishedAt && <span>·</span>}
           </>
+        )}
+        {post.publishedAt && (
+          <time dateTime={new Date(post.publishedAt).toISOString()}>
+            {formatDate(post.publishedAt)}
+          </time>
         )}
       </div>
 

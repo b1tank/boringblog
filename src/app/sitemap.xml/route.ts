@@ -6,7 +6,10 @@ const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://example.com";
 
 export async function GET() {
   const posts = await prisma.post.findMany({
-    where: { published: true },
+    where: {
+      published: true,
+      author: { role: { not: "ADMIN" } },
+    },
     select: { slug: true, updatedAt: true },
     orderBy: { updatedAt: "desc" },
   });
@@ -16,6 +19,7 @@ export async function GET() {
   });
 
   const authors = await prisma.user.findMany({
+    where: { role: { not: "ADMIN" } },
     select: { name: true },
   });
 

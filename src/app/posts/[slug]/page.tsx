@@ -1,9 +1,7 @@
 import { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { cookies } from "next/headers";
-import { getIronSession } from "iron-session";
 import { prisma } from "@/lib/db";
-import { SessionData, sessionOptions } from "@/lib/auth";
+import { getSession, SessionData } from "@/lib/auth";
 import { calculateReadingTime, extractExcerpt } from "@/lib/utils";
 import { PostContent } from "@/components/PostContent";
 import { TableOfContents } from "@/components/TableOfContents";
@@ -37,21 +35,11 @@ function formatDate(date: Date | null): string {
   }).format(new Date(date));
 }
 
-async function getSession() {
-  try {
-    const cookieStore = await cookies();
-    const session = await getIronSession<SessionData>(cookieStore, sessionOptions);
-    return session.isLoggedIn ? session : null;
-  } catch {
-    return null;
-  }
-}
-
 async function getPost(slug: string, session: SessionData | null) {
   const post = await prisma.post.findUnique({
     where: { slug },
     include: {
-      author: { select: { id: true, name: true } },
+      author: { select: { id: true, name: true, role: true } },
       tags: true,
     },
   });
@@ -62,6 +50,11 @@ async function getPost(slug: string, session: SessionData | null) {
   if (!post.published) {
     if (!session) return null;
     if (session.role !== "ADMIN" && session.userId !== post.authorId) return null;
+  }
+
+  // Hide admin's published posts from non-admin users
+  if (post.published && (post.author as { role: string }).role === "ADMIN") {
+    if (!session || session.role !== "ADMIN") return null;
   }
 
   return post;

@@ -20,7 +20,10 @@ export async function GET() {
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://example.com";
 
   const posts = await prisma.post.findMany({
-    where: { published: true },
+    where: {
+      published: true,
+      author: { role: { not: "ADMIN" } },
+    },
     orderBy: { publishedAt: "desc" },
     take: 20,
     select: {

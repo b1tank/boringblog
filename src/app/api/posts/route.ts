@@ -77,6 +77,24 @@ export async function GET(request: NextRequest) {
     where.author = { name: author };
   }
 
+  // Hide admin's posts from non-admin users
+  const session = await getIronSession<SessionData>(
+    await cookies(),
+    sessionOptions
+  );
+  if (!session.isLoggedIn || session.role !== "ADMIN") {
+    // Apply admin filter — merge with existing author clause if present
+    if (where.author) {
+      where.AND = [
+        { author: where.author as Record<string, unknown> },
+        { author: { role: { not: "ADMIN" } } },
+      ];
+      delete where.author;
+    } else {
+      where.author = { role: { not: "ADMIN" } };
+    }
+  }
+
   const [posts, total] = await Promise.all([
     prisma.post.findMany({
       where,
